@@ -1,7 +1,6 @@
-#SettingsManagerSample 
-##in the Cinder-BluecadetUtils block
+#Settings Manager Sample 
 
-###This is an example of extending the base SettingsManager with a project specific SettingsManager. 
+###Example of extending the base SettingsManager with a project specific SettingsManager. 
 
 ####BluecadetUtils > SettingsManager
 Holds standard settings like framerate, debug mode, drawing touches, reset timers. The loading of these values through standardAppSettings.json should be done after setting any properties through the command line arguments (also parsed in the SettingsManager).
