@@ -1,0 +1,7 @@
+{
+    "settings": {
+        "testBool": false,
+        "testString": "This is a string.",
+        "testInt": 3
+    }
+}

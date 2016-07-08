@@ -1,0 +1,34 @@
+{
+    "settings": {
+        
+        "consoleWindowEnabled": true,
+        "maxTaskProcessingTime": 15,
+
+        "graphics":{
+            "verticalSync": true
+        },
+
+        "debug":{
+            "scale":1,
+            "debugMode": true,
+            "drawMinimap": true,
+            "drawDisplayOutlines": true,
+            "drawDebugTouches": true,
+            "drawDebugScreenLayout": true,
+            "debugFullscreen": false,
+            "debugBorderless": false,
+            "showMouse": true
+        },
+
+        "reset": {            
+            "timeToWarning": 60.0,
+            "timeWarningIsOnScreen": 15.0
+        },
+
+        "analytics":{
+            "appName":"",
+            "trackingID":"",
+            "clientID":""
+        }
+    }
+}
