@@ -106,6 +106,7 @@
     <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.cpp" />
     <ClCompile Include="..\..\..\src\BaseApp.cpp" />
+    <ClCompile Include="..\..\..\src\ScreenLayout.cpp" />
     <ClCompile Include="..\src\AppSampleApp.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-BluecadetText\src\FontManager.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-BluecadetText\src\StyledTextLayout.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.h" />
     <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.h" />
     <ClInclude Include="..\..\..\src\BaseApp.h" />
+    <ClInclude Include="..\..\..\src\ScreenLayout.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\..\..\..\Cinder-BluecadetText\src\FontManager.h" />
     <ClInclude Include="..\..\..\..\Cinder-BluecadetText\src\StyledTextLayout.h" />

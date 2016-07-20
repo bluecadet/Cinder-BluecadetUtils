@@ -195,6 +195,9 @@
     <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.cpp">
       <Filter>Blocks\BluecadetViews\src\debug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\ScreenLayout.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -211,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.h">
       <Filter>Blocks\BluecadetViews\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\ScreenLayout.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
