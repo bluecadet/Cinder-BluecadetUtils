@@ -6,17 +6,6 @@
 namespace bluecadet {
 namespace utils {
 
-#define SETTINGS_APP_VERSION "alpha-1.0"
-
-#define SETTINGS_APP_WIDTH 7560		//! Width of app
-#define SETTINGS_APP_HEIGHT 5760	//! Height of app
-#define SETTINGS_DISPLAY_WIDTH 1080 //! Width of single display
-#define SETTINGS_DISPLAY_HEIGHT 1920//! Height of single display
-#define SETTINGS_DISPLAY_NUM_ROWS 1 //! Total number of screens vertically
-#define SETTINGS_DISPLAY_NUM_COLS 5 //! Total number of screens horizontally
-
-#define SETTINGS_FPS 60
-
 typedef std::shared_ptr<class SettingsManager> SettingsManagerRef;
 
 class SettingsManager {
@@ -41,7 +30,7 @@ public:
 		fullscreen=[true/false]
 		borderless=[true/false]
 		vsync=[true/false]
-		console=[tru/false]
+		console=[true/false]
 		cursor=[true/false] or mouse=[true/false]
 	*/
 	void setup(const ci::fs::path& jsonPath, ci::app::App::Settings* appSettings);
@@ -51,8 +40,20 @@ public:
 	
 	//! General
 	bool			mConsoleWindowEnabled;
+	int				mFps;
+	std::string		mAppVersion;
+
+	//! Display
+	int				mAppWidth;
+	int				mAppHeight;
+	int				mDisplayWidth;
+	int				mDisplayHeight;
+	int				mDisplayTotalRows;
+	int				mDisplayTotalColumns;
+
 	//! Graphics
 	bool			mVerticalSync;
+	
 	//! Debug
 	bool			mDebugMode;
 	bool			mDebugDrawTouches;
