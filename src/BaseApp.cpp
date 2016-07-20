@@ -1,6 +1,8 @@
 #include "BaseApp.h"
 #include "SettingsManager.h"
 
+#include "ScreenLayout.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -57,6 +59,9 @@ void BaseApp::draw()
 {
 	gl::clear(Color(0, 0, 0));
 	mRootView->drawScene();
+
+	// 
+	ScreenLayout::getInstance()->drawDisplayBounds();
 }
 
 void BaseApp::keyDown(KeyEvent event)

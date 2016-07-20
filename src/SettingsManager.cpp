@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <string>	
 
+#include "ScreenLayout.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -17,6 +19,8 @@ SettingsManager::SettingsManager() {
 	mConsoleWindowEnabled = true;
 	mFps = 60;
 	mAppVersion = "";
+	mAppWidth = 1920;
+	mAppHeight = 1080;
 
 	// Graphics
 	mVerticalSync = true;
@@ -30,14 +34,6 @@ SettingsManager::SettingsManager() {
 	mDebugBorderless = true;
 	mShowMouse = true;
 	mDebugWindowSize = ivec2(0);
-
-	// Display
-	mAppWidth = 1920;
-	mAppHeight = 1080;
-	mDisplayWidth = 1920;
-	mDisplayHeight = 1080;
-	mDisplayTotalRows = 1;
-	mDisplayTotalColumns = 1;
 	
 	// Analytics
 	mAnalyticsAppName = "";
@@ -61,11 +57,11 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 			setFieldFromJson(&mFps, "settings.general.FPS", appSettingsDoc);
 			setFieldFromJson(&mAppVersion, "settings.general.appVersion", appSettingsDoc);
 
-			// Display
-			setFieldFromJson(&mDisplayWidth, "settings.display.width", appSettingsDoc);
-			setFieldFromJson(&mDisplayHeight, "settings.display.height", appSettingsDoc);
-			setFieldFromJson(&mDisplayTotalRows, "settings.display.totalColumns", appSettingsDoc);
-			setFieldFromJson(&mDisplayTotalColumns, "settings.display.totalRows", appSettingsDoc);
+			// Display // SM :: move
+			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayWidth(), "settings.display.width", appSettingsDoc);
+			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayHeight(), "settings.display.height", appSettingsDoc);
+			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalRows(), "settings.display.totalColumns", appSettingsDoc);
+			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalColumns(), "settings.display.totalRows", appSettingsDoc);
 
 			// Graphics
 			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", appSettingsDoc);
@@ -101,8 +97,8 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 void SettingsManager::applySettings(ci::app::App::Settings* appSettings) {
 
 	// Set width and height of app
-	mAppWidth = mDisplayWidth*mDisplayTotalRows;
-	mAppHeight = mAppHeight*mDisplayTotalColumns;
+	mAppWidth = ScreenLayout::getInstance()->getDisplayWidth()*ScreenLayout::getInstance()->getDisplayTotalRows();
+	mAppHeight = ScreenLayout::getInstance()->getDisplayHeight()*ScreenLayout::getInstance()->getDisplayTotalColumns();
 
 	appSettings->setConsoleWindowEnabled(mConsoleWindowEnabled);
 	appSettings->setFrameRate(mFps);

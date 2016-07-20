@@ -42,14 +42,8 @@ public:
 	bool			mConsoleWindowEnabled;
 	int				mFps;
 	std::string		mAppVersion;
-
-	//! Display
 	int				mAppWidth;
 	int				mAppHeight;
-	int				mDisplayWidth;
-	int				mDisplayHeight;
-	int				mDisplayTotalRows;
-	int				mDisplayTotalColumns;
 
 	//! Graphics
 	bool			mVerticalSync;
