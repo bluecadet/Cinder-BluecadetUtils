@@ -57,11 +57,13 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 			setFieldFromJson(&mFps, "settings.general.FPS", appSettingsDoc);
 			setFieldFromJson(&mAppVersion, "settings.general.appVersion", appSettingsDoc);
 
-			// Display // SM :: move
-			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayWidth(), "settings.display.width", appSettingsDoc);
-			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayHeight(), "settings.display.height", appSettingsDoc);
-			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalRows(), "settings.display.totalColumns", appSettingsDoc);
-			setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalColumns(), "settings.display.totalRows", appSettingsDoc);
+			// Load display settings // SM :: move?
+			if (ScreenLayout::getInstance()) {
+				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayWidth(), "settings.display.width", appSettingsDoc);
+				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayHeight(), "settings.display.height", appSettingsDoc);
+				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalRows(), "settings.display.totalColumns", appSettingsDoc);
+				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalColumns(), "settings.display.totalRows", appSettingsDoc);
+			}
 
 			// Graphics
 			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", appSettingsDoc);
