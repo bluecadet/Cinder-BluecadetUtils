@@ -21,7 +21,8 @@ BaseApp::~BaseApp() {
 void BaseApp::prepareSettings(ci::app::App::Settings* settings)
 {
 	// Init settings manager
-	SettingsManager::getInstance()->setup("appSettings.json", settings);
+	fs::path appSettingsPath = ci::app::getAssetPath("appSettings.json");
+	SettingsManager::getInstance()->setup(appSettingsPath, settings);
 }
 
 void BaseApp::setup()
