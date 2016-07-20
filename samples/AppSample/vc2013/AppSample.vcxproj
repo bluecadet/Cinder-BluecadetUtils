@@ -102,6 +102,9 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectButton.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.cpp" />
     <ClCompile Include="..\..\..\src\BaseApp.cpp" />
     <ClCompile Include="..\src\AppSampleApp.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-BluecadetText\src\FontManager.cpp" />
@@ -124,6 +127,9 @@
     <ClCompile Include="..\..\..\..\TUIO\src\Tuio.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectButton.h" />
+    <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.h" />
+    <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.h" />
     <ClInclude Include="..\..\..\src\BaseApp.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\..\..\..\Cinder-BluecadetText\src\FontManager.h" />

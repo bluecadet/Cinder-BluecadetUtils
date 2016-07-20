@@ -55,6 +55,9 @@
     <Filter Include="Blocks\TUIO\src">
       <UniqueIdentifier>{4283D695-DD3E-492C-914D-29744D530925}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\BluecadetViews\src\debug">
+      <UniqueIdentifier>{41271bcc-de48-4da1-84cf-96ea2d8d92bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AppSampleApp.cpp">
@@ -183,6 +186,15 @@
     <ClCompile Include="..\..\..\src\BaseApp.cpp">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectButton.cpp">
+      <Filter>Blocks\BluecadetViews\src\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.cpp">
+      <Filter>Blocks\BluecadetViews\src\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.cpp">
+      <Filter>Blocks\BluecadetViews\src\debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -190,6 +202,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\BaseApp.h">
       <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\StatsView.h">
+      <Filter>Blocks\BluecadetViews\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectButton.h">
+      <Filter>Blocks\BluecadetViews\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Cinder-BluecadetViews\src\debug\RectView.h">
+      <Filter>Blocks\BluecadetViews\src\debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
