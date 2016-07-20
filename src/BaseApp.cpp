@@ -1,4 +1,5 @@
 #include "BaseApp.h"
+#include "SettingsManager.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -17,8 +18,26 @@ BaseApp::BaseApp() :
 BaseApp::~BaseApp() {
 }
 
+void BaseApp::prepareSettings(ci::app::App::Settings* settings)
+{
+	// Init settings manager
+	SettingsManager::getInstance()->setup("appSettings.json", settings);
+}
+
 void BaseApp::setup()
 {
+	// Set up settings
+	if (SettingsManager::getInstance()->mShowMouse) {
+		showCursor();
+	} else {
+		hideCursor();
+	}
+
+	// Set up graphics
+	gl::enableVerticalSync(SettingsManager::getInstance()->mVerticalSync);
+	gl::enableAlphaBlending();
+
+	// Set up touches
 	mMouseDriver.connect();
 	mTuioDriver.connect();
 }
@@ -37,6 +56,15 @@ void BaseApp::draw()
 {
 	gl::clear(Color(0, 0, 0));
 	mRootView->drawScene();
+}
+
+void BaseApp::keyDown(KeyEvent event)
+{
+	switch (event.getCode()) {
+		case KeyEvent::KEY_q:
+			quit();
+			break;
+	}
 }
 
 }

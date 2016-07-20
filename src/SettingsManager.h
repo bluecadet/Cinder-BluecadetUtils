@@ -17,13 +17,24 @@ namespace utils {
 
 #define SETTINGS_FPS 60
 
+typedef std::shared_ptr<class SettingsManager> SettingsManagerRef;
+
 class SettingsManager {
 public:
 
 	SettingsManager();
 	~SettingsManager();
 
-	/**
+	//! Singleton
+	static SettingsManagerRef getInstance() {
+		static SettingsManagerRef instance = nullptr;
+		if (!instance) instance = SettingsManagerRef(new SettingsManager());
+		return instance;
+	}
+ 
+	/*!
+	Load the standard settings that all apps share from the block
+
 	Supported arguments:
 		debug=[true/false]
 		size=w,h
@@ -33,43 +44,43 @@ public:
 		console=[tru/false]
 		cursor=[true/false] or mouse=[true/false]
 	*/
-	//! Parse command line arguments passed in when starting app
-	static void parseCommandLineArgs(const std::vector<std::string>& args);
-
-	//! Load the standard settings that all apps share from the block
-	static void loadStandardAppSettings(const ci::fs::path& path);
+	void setup(const ci::fs::path& jsonPath, ci::app::App::Settings* appSettings);
 
 	//! Returns the app params, creates new params 
-	static ci::params::InterfaceGlRef getParams();
+	ci::params::InterfaceGlRef getParams();
 	
 	//! General
-	static bool			mConsoleWindowEnabled;
-	static float		mMaxTaskProcessingTime;
+	bool			mConsoleWindowEnabled;
 	//! Graphics
-	static bool			mVerticalSync;
+	bool			mVerticalSync;
 	//! Debug
-	static float		mDebugScale;
-	static bool			mDebugMode;
-	static bool			mDrawMinimap;
-	static bool			mDrawDisplayOutlines;
-	static bool			mDebugDrawTouches;
-	static bool			mDebugDrawScreenLayout;
-	static bool			mDebugFullscreen;
-	static bool			mDebugBorderless;
-	static bool			mShowMouse;
-	static ci::vec2		mDebugTranslation;
-	static ci::ivec2	mDebugWindowSize;
-	//! Reset
-	static float		mReset_timeToWarning;
-	static float		mReset_timeWarningIsOnScreen;
+	bool			mDebugMode;
+	bool			mDebugDrawTouches;
+	bool			mDebugDrawScreenLayout;
+	bool			mDebugFullscreen;
+	bool			mDebugBorderless;
+	ci::ivec2		mDebugWindowSize;
+	bool			mShowMouse;
+	bool			mDrawMinimap;
+
 	//! Analytics
-	static std::string	mAnalyticsAppName;
-	static std::string	mAnalyticsTrackingId;
-	static std::string	mAnalyticsClientId;
+	std::string		mAnalyticsAppName;
+	std::string		mAnalyticsTrackingId;
+	std::string		mAnalyticsClientId;
+
+protected:
+	virtual void applySettings(ci::app::App::Settings* appSettings);
+	virtual void parseCommandLineArgs(const std::vector<std::string>& args);
+	virtual void parseArgumentsMap(const std::map<std::string, std::string>& argsMap);
+
+	//! Helpers to get string from primitive types and strings since we can't call to_string on strings
+	template <typename T> std::string castToString(T* target) { return to_string(*target); }
+	template <> std::string castToString<std::string>(std::string* target) { return *target; }
+
 
 	//! Helpers
 	template <typename T>
-	static void setFieldFromJson(T* target, const std::string& jsonFieldName, const ci::JsonTree& json) {
+	void setFieldFromJson(T* target, const std::string& jsonFieldName, const ci::JsonTree& json) {
 		try {
 			if (!json.hasChild(jsonFieldName)) {
 				//! Abort if the settings value couldn't be found
@@ -79,21 +90,10 @@ public:
 			*target = json.getValueForKey<T>(jsonFieldName);
 			console() << "SettingsManager: Set '" << jsonFieldName << "' to '" << castToString(target) << "' from json file" << endl;
 
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			console() << "SettingsManager: Could not set '" << jsonFieldName << "' from json file: " << e.what() << endl;
 		}
 	}
-
-private:
-
-	
-	static void parseArguments(const std::map<std::string, std::string>& argsMap);
-	static std::map<std::string, std::string> mCommandLineArgs;
-
-	//! Helpers to get string from primitive types and strings since we can't call to_string on strings
-	template <typename T> static std::string castToString(T* target) { return to_string(*target); }
-	template <> static std::string castToString<std::string>(std::string* target) { return *target; }
 };
 
 }

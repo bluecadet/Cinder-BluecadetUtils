@@ -21,9 +21,12 @@ public:
 	BaseApp();
 	virtual ~BaseApp();
 
-	void setup() override;
-	void update() override;
-	void draw() override;
+	virtual void setup() override;
+	virtual void update() override;
+	virtual void draw() override;
+	virtual void keyDown(ci::app::KeyEvent event) override;
+
+	static void prepareSettings(ci::app::App::Settings *settings);
 
 protected:
 	views::BaseViewRef			mRootView;

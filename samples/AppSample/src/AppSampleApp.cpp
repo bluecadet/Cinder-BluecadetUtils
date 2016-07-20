@@ -42,4 +42,4 @@ void AppSampleApp::draw()
 	BaseApp::draw();
 }
 
-CINDER_APP(AppSampleApp, RendererGl)
+CINDER_APP(AppSampleApp, RendererGl, AppSampleApp::prepareSettings);
