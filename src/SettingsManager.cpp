@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <string>	
 
-#include "ScreenLayout.h"
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -13,7 +11,9 @@ namespace bluecadet {
 namespace utils {
 
 // Initialization
-SettingsManager::SettingsManager() {
+SettingsManager::SettingsManager(){
+
+	sAppSettingsDoc = JsonTree();
 
 	// General
 	mConsoleWindowEnabled = true;
@@ -50,37 +50,30 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 		console() << "SettingsManager: Loading settings from '" << jsonPath << "'" << endl;
 
 		try {
-			JsonTree appSettingsDoc(loadFile(jsonPath));
+			DataSourceRef tree = loadFile(jsonPath);
+			sAppSettingsDoc = (JsonTree)tree;
 
 			// General
-			setFieldFromJson(&mConsoleWindowEnabled, "settings.general.consoleWindowEnabled", appSettingsDoc);
-			setFieldFromJson(&mFps, "settings.general.FPS", appSettingsDoc);
-			setFieldFromJson(&mAppVersion, "settings.general.appVersion", appSettingsDoc);
-
-			// Load display settings // SM :: move?
-			if (ScreenLayout::getInstance()) {
-				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayWidth(), "settings.display.width", appSettingsDoc);
-				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayHeight(), "settings.display.height", appSettingsDoc);
-				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalRows(), "settings.display.totalColumns", appSettingsDoc);
-				setFieldFromJson(&ScreenLayout::getInstance()->getDisplayTotalColumns(), "settings.display.totalRows", appSettingsDoc);
-			}
+			setFieldFromJson(&mConsoleWindowEnabled, "settings.general.consoleWindowEnabled", sAppSettingsDoc);
+			setFieldFromJson(&mFps, "settings.general.FPS", sAppSettingsDoc);
+			setFieldFromJson(&mAppVersion, "settings.general.appVersion", sAppSettingsDoc);
 
 			// Graphics
-			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", appSettingsDoc);
+			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", sAppSettingsDoc);
 
 			// Debug
-			setFieldFromJson(&mDebugMode, "settings.debug.debugMode", appSettingsDoc);
-			setFieldFromJson(&mDrawMinimap, "settings.debug.drawMinimap", appSettingsDoc);
-			setFieldFromJson(&mDebugDrawTouches, "settings.debug.drawTouches", appSettingsDoc);
-			setFieldFromJson(&mDebugDrawScreenLayout, "settings.debug.drawScreenLayout", appSettingsDoc);
-			setFieldFromJson(&mDebugFullscreen, "settings.debug.fullscreen", appSettingsDoc);
-			setFieldFromJson(&mDebugBorderless, "settings.debug.borderless", appSettingsDoc);
-			setFieldFromJson(&mShowMouse, "settings.debug.showMouse", appSettingsDoc);
+			setFieldFromJson(&mDebugMode, "settings.debug.debugMode", sAppSettingsDoc);
+			setFieldFromJson(&mDrawMinimap, "settings.debug.drawMinimap", sAppSettingsDoc);
+			setFieldFromJson(&mDebugDrawTouches, "settings.debug.drawTouches", sAppSettingsDoc);
+			setFieldFromJson(&mDebugDrawScreenLayout, "settings.debug.drawScreenLayout", sAppSettingsDoc);
+			setFieldFromJson(&mDebugFullscreen, "settings.debug.fullscreen", sAppSettingsDoc);
+			setFieldFromJson(&mDebugBorderless, "settings.debug.borderless", sAppSettingsDoc);
+			setFieldFromJson(&mShowMouse, "settings.debug.showMouse", sAppSettingsDoc);
 
 			// Analytics
-			setFieldFromJson(&mAnalyticsAppName, "settings.analytics.appName", appSettingsDoc);
-			setFieldFromJson(&mAnalyticsTrackingId, "settings.analytics.trackingID", appSettingsDoc);
-			setFieldFromJson(&mAnalyticsClientId, "settings.analytics.clientID", appSettingsDoc);
+			setFieldFromJson(&mAnalyticsAppName, "settings.analytics.appName", sAppSettingsDoc);
+			setFieldFromJson(&mAnalyticsTrackingId, "settings.analytics.trackingID", sAppSettingsDoc);
+			setFieldFromJson(&mAnalyticsClientId, "settings.analytics.clientID", sAppSettingsDoc);
 
 		} catch (Exception e) {
 			console() << "SettingsManager: ERROR: Could not load settings json: " << e.what() << endl;
@@ -99,8 +92,8 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 void SettingsManager::applySettings(ci::app::App::Settings* appSettings) {
 
 	// Set width and height of app
-	mAppWidth = ScreenLayout::getInstance()->getDisplayWidth()*ScreenLayout::getInstance()->getDisplayTotalRows();
-	mAppHeight = ScreenLayout::getInstance()->getDisplayHeight()*ScreenLayout::getInstance()->getDisplayTotalColumns();
+//	mAppWidth = ScreenLayout::getInstance()->getDisplayWidth()*ScreenLayout::getInstance()->getDisplayTotalRows();
+//	mAppHeight = ScreenLayout::getInstance()->getDisplayHeight()*ScreenLayout::getInstance()->getDisplayTotalColumns();
 
 	appSettings->setConsoleWindowEnabled(mConsoleWindowEnabled);
 	appSettings->setFrameRate(mFps);

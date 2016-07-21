@@ -1,19 +1,37 @@
 #include "ScreenLayout.h"
+#include "SettingsManager.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-using namespace bluecadet;
-using namespace bluecadet::views;
 
-ScreenLayout::ScreenLayout() : BaseView(){
+namespace bluecadet {
+namespace utils {
+
+ScreenLayout::ScreenLayout() :
+	mDisplayWidth(1920),
+	mDisplayHeight(1080),
+	mDisplayTotalRows(1),
+	mDisplayTotalColumns(1)
+{
 }
 
-ScreenLayout::~ScreenLayout(){
+ScreenLayout::~ScreenLayout() {
 }
 
 void ScreenLayout::setup() {
+	// Load display settings. Don't pass the json and it will use the default appSettings.json
+	SettingsManager::getInstance()->setFieldFromJson(&mDisplayWidth, "settings.display.width");
+	SettingsManager::getInstance()->setFieldFromJson(&mDisplayHeight, "settings.display.height");
+	SettingsManager::getInstance()->setFieldFromJson(&mDisplayTotalRows, "settings.display.totalColumns");
+	SettingsManager::getInstance()->setFieldFromJson(&mDisplayTotalColumns, "settings.display.totalRows");
 }
+
+//void ScreenLayout::update(double deltaTime) {
+//}
+
+//void ScreenLayout::draw() {
+//}
 
 void ScreenLayout::drawDisplayBounds(const ci::ColorA& color, const float& lineWidth) {
 	ci::gl::ScopedColor scopedColor;
@@ -29,7 +47,7 @@ void ScreenLayout::drawDisplayBounds(const ci::ColorA& color, const float& lineW
 	}
 }
 
-// Screen bounds in world space; 0-based col and row from top left to bottom right
+// Returns bounds of single screen at column/row as rectangle dimensions
 ci::Rectf ScreenLayout::getScreenBounds(int column, int row) {
 	return ci::Rectf(
 		(float)(column * mDisplayWidth),
@@ -38,8 +56,5 @@ ci::Rectf ScreenLayout::getScreenBounds(int column, int row) {
 		(float)((row + 1.0f) * mDisplayHeight));
 }
 
-void ScreenLayout::update(double deltaTime) {
 }
-
-void ScreenLayout::draw() {
 }

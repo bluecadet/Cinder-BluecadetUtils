@@ -25,10 +25,13 @@ void BaseApp::prepareSettings(ci::app::App::Settings* settings)
 	// Init settings manager
 	fs::path appSettingsPath = ci::app::getAssetPath("appSettings.json");
 	SettingsManager::getInstance()->setup(appSettingsPath, settings);
+
+	ScreenLayout::getInstance()->setup();
 }
 
 void BaseApp::setup()
 {
+
 	// Set up settings
 	if (SettingsManager::getInstance()->mShowMouse) {
 		showCursor();
@@ -60,8 +63,8 @@ void BaseApp::draw()
 	gl::clear(Color(0, 0, 0));
 	mRootView->drawScene();
 
-	// 
-	ScreenLayout::getInstance()->drawDisplayBounds();
+	if(SettingsManager::getInstance()->mDebugDrawScreenLayout)
+		ScreenLayout::getInstance()->drawDisplayBounds();
 }
 
 void BaseApp::keyDown(KeyEvent event)

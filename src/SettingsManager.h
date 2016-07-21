@@ -20,7 +20,7 @@ public:
 		if (!instance) instance = SettingsManagerRef(new SettingsManager());
 		return instance;
 	}
- 
+
 	/*!
 	Load the standard settings that all apps share from the block
 
@@ -37,7 +37,7 @@ public:
 
 	//! Returns the app params, creates new params 
 	ci::params::InterfaceGlRef getParams();
-	
+
 	//! General
 	bool			mConsoleWindowEnabled;
 	int				mFps;
@@ -47,7 +47,7 @@ public:
 
 	//! Graphics
 	bool			mVerticalSync;
-	
+
 	//! Debug
 	bool			mDebugMode;
 	bool			mDebugDrawTouches;
@@ -63,19 +63,15 @@ public:
 	std::string		mAnalyticsTrackingId;
 	std::string		mAnalyticsClientId;
 
-protected:
-	virtual void applySettings(ci::app::App::Settings* appSettings);
-	virtual void parseCommandLineArgs(const std::vector<std::string>& args);
-	virtual void parseArgumentsMap(const std::map<std::string, std::string>& argsMap);
-
-	//! Helpers to get string from primitive types and strings since we can't call to_string on strings
-	template <typename T> std::string castToString(T* target) { return to_string(*target); }
-	template <> std::string castToString<std::string>(std::string* target) { return *target; }
-
-
 	//! Helpers
 	template <typename T>
-	void setFieldFromJson(T* target, const std::string& jsonFieldName, const ci::JsonTree& json) {
+	void setFieldFromJson(T* target, const std::string& jsonFieldName, ci::JsonTree& json = JsonTree()) {
+
+		//! If a json isn't passed in, default to checking appSettings.json
+		if (json.getNumChildren() <= 0) {
+			json = sAppSettingsDoc;
+		}
+
 		try {
 			if (!json.hasChild(jsonFieldName)) {
 				//! Abort if the settings value couldn't be found
@@ -85,10 +81,26 @@ protected:
 			*target = json.getValueForKey<T>(jsonFieldName);
 			console() << "SettingsManager: Set '" << jsonFieldName << "' to '" << castToString(target) << "' from json file" << endl;
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			console() << "SettingsManager: Could not set '" << jsonFieldName << "' from json file: " << e.what() << endl;
 		}
+
 	}
+
+
+
+protected:
+	virtual void applySettings(ci::app::App::Settings* appSettings);
+	virtual void parseCommandLineArgs(const std::vector<std::string>& args);
+	virtual void parseArgumentsMap(const std::map<std::string, std::string>& argsMap);
+
+	//! Helpers to get string from primitive types and strings since we can't call to_string on strings
+	template <typename T> std::string castToString(T* target) { return to_string(*target); }
+	template <> std::string castToString<std::string>(std::string* target) { return *target; }
+
+	//! Base appSettings json
+	ci::JsonTree& sAppSettingsDoc = ci::JsonTree();
 };
 
 }
