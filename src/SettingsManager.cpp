@@ -13,7 +13,7 @@ namespace utils {
 // Initialization
 SettingsManager::SettingsManager(){
 
-	sAppSettingsDoc = JsonTree();
+	mAppSettingsDoc = JsonTree();
 
 	// General
 	mConsoleWindowEnabled = true;
@@ -51,29 +51,29 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 
 		try {
 			DataSourceRef tree = loadFile(jsonPath);
-			sAppSettingsDoc = (JsonTree)tree;
+			mAppSettingsDoc = (JsonTree)tree;
 
 			// General
-			setFieldFromJson(&mConsoleWindowEnabled, "settings.general.consoleWindowEnabled", sAppSettingsDoc);
-			setFieldFromJson(&mFps, "settings.general.FPS", sAppSettingsDoc);
-			setFieldFromJson(&mAppVersion, "settings.general.appVersion", sAppSettingsDoc);
+			setFieldFromJson(&mConsoleWindowEnabled, "settings.general.consoleWindowEnabled", mAppSettingsDoc);
+			setFieldFromJson(&mFps, "settings.general.FPS", mAppSettingsDoc);
+			setFieldFromJson(&mAppVersion, "settings.general.appVersion", mAppSettingsDoc);
 
 			// Graphics
-			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", sAppSettingsDoc);
+			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", mAppSettingsDoc);
 
 			// Debug
-			setFieldFromJson(&mDebugMode, "settings.debug.debugMode", sAppSettingsDoc);
-			setFieldFromJson(&mDrawMinimap, "settings.debug.drawMinimap", sAppSettingsDoc);
-			setFieldFromJson(&mDebugDrawTouches, "settings.debug.drawTouches", sAppSettingsDoc);
-			setFieldFromJson(&mDebugDrawScreenLayout, "settings.debug.drawScreenLayout", sAppSettingsDoc);
-			setFieldFromJson(&mDebugFullscreen, "settings.debug.fullscreen", sAppSettingsDoc);
-			setFieldFromJson(&mDebugBorderless, "settings.debug.borderless", sAppSettingsDoc);
-			setFieldFromJson(&mShowMouse, "settings.debug.showMouse", sAppSettingsDoc);
+			setFieldFromJson(&mDebugMode, "settings.debug.debugMode", mAppSettingsDoc);
+			setFieldFromJson(&mDrawMinimap, "settings.debug.drawMinimap", mAppSettingsDoc);
+			setFieldFromJson(&mDebugDrawTouches, "settings.debug.drawTouches", mAppSettingsDoc);
+			setFieldFromJson(&mDebugDrawScreenLayout, "settings.debug.drawScreenLayout", mAppSettingsDoc);
+			setFieldFromJson(&mDebugFullscreen, "settings.debug.fullscreen", mAppSettingsDoc);
+			setFieldFromJson(&mDebugBorderless, "settings.debug.borderless", mAppSettingsDoc);
+			setFieldFromJson(&mShowMouse, "settings.debug.showMouse", mAppSettingsDoc);
 
 			// Analytics
-			setFieldFromJson(&mAnalyticsAppName, "settings.analytics.appName", sAppSettingsDoc);
-			setFieldFromJson(&mAnalyticsTrackingId, "settings.analytics.trackingID", sAppSettingsDoc);
-			setFieldFromJson(&mAnalyticsClientId, "settings.analytics.clientID", sAppSettingsDoc);
+			setFieldFromJson(&mAnalyticsAppName, "settings.analytics.appName", mAppSettingsDoc);
+			setFieldFromJson(&mAnalyticsTrackingId, "settings.analytics.trackingID", mAppSettingsDoc);
+			setFieldFromJson(&mAnalyticsClientId, "settings.analytics.clientID", mAppSettingsDoc);
 
 		} catch (Exception e) {
 			console() << "SettingsManager: ERROR: Could not load settings json: " << e.what() << endl;
@@ -90,11 +90,6 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 }
 
 void SettingsManager::applySettings(ci::app::App::Settings* appSettings) {
-
-	// Set width and height of app
-//	mAppWidth = ScreenLayout::getInstance()->getDisplayWidth()*ScreenLayout::getInstance()->getDisplayTotalRows();
-//	mAppHeight = ScreenLayout::getInstance()->getDisplayHeight()*ScreenLayout::getInstance()->getDisplayTotalColumns();
-
 	appSettings->setConsoleWindowEnabled(mConsoleWindowEnabled);
 	appSettings->setFrameRate(mFps);
 	appSettings->setFullScreen(mDebugFullscreen);

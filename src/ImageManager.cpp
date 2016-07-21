@@ -8,7 +8,7 @@ using namespace ci::app;
 using namespace std;
 
 namespace bluecadet {
-namespace views {
+namespace utils {
 
 ImageManager::ImageManager() {
 	mValidExtensions.insert("png");

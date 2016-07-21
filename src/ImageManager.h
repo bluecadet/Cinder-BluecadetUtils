@@ -11,7 +11,7 @@
 #include "cinder/gl/Texture.h"
 
 namespace bluecadet {
-namespace views {
+namespace utils {
 
 typedef std::shared_ptr<class ImageManager> ImageManagerRef;
 

@@ -63,15 +63,26 @@ public:
 	std::string		mAnalyticsTrackingId;
 	std::string		mAnalyticsClientId;
 
-	//! Helpers
+	//! Get the value of field from within the json
+	template <typename T>
+	T getField(const std::string& field) {
+		try {
+			if (!mAppSettingsDoc.hasChild(field)) {
+				//! Abort if the settings value couldn't be found
+				console() << "SettingsManager: Could not find settings value for field name '" << field << "' in json file" << endl;
+				return T();
+			}
+			return mAppSettingsDoc.getValueForKey<T>(field);
+		}
+		catch (Exception e) {
+			console() << "SettingsManager: Could not find '" << field << "' in json file: " << e.what() << endl;
+		}
+	};
+
+protected:
+	//! Set fields within the settings manager class if the setting is defined in the json
 	template <typename T>
 	void setFieldFromJson(T* target, const std::string& jsonFieldName, ci::JsonTree& json = JsonTree()) {
-
-		//! If a json isn't passed in, default to checking appSettings.json
-		if (json.getNumChildren() <= 0) {
-			json = sAppSettingsDoc;
-		}
-
 		try {
 			if (!json.hasChild(jsonFieldName)) {
 				//! Abort if the settings value couldn't be found
@@ -80,17 +91,12 @@ public:
 			}
 			*target = json.getValueForKey<T>(jsonFieldName);
 			console() << "SettingsManager: Set '" << jsonFieldName << "' to '" << castToString(target) << "' from json file" << endl;
-
 		}
 		catch (Exception e) {
 			console() << "SettingsManager: Could not set '" << jsonFieldName << "' from json file: " << e.what() << endl;
 		}
-
 	}
-
-
-
-protected:
+	
 	virtual void applySettings(ci::app::App::Settings* appSettings);
 	virtual void parseCommandLineArgs(const std::vector<std::string>& args);
 	virtual void parseArgumentsMap(const std::map<std::string, std::string>& argsMap);
@@ -100,7 +106,7 @@ protected:
 	template <> std::string castToString<std::string>(std::string* target) { return *target; }
 
 	//! Base appSettings json
-	ci::JsonTree& sAppSettingsDoc = ci::JsonTree();
+	ci::JsonTree& mAppSettingsDoc = ci::JsonTree();
 };
 
 }
