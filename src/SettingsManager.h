@@ -76,20 +76,21 @@ public:
 		}
 		catch (Exception e) {
 			console() << "SettingsManager: Could not find '" << field << "' in json file: " << e.what() << endl;
+			return T();
 		}
 	};
 
 protected:
 	//! Set fields within the settings manager class if the setting is defined in the json
 	template <typename T>
-	void setFieldFromJson(T* target, const std::string& jsonFieldName, ci::JsonTree& json = JsonTree()) {
+	void updatePropertyFromField(T* target, const std::string& jsonFieldName) {
 		try {
-			if (!json.hasChild(jsonFieldName)) {
+			if (!mAppSettingsDoc.hasChild(jsonFieldName)) {
 				//! Abort if the settings value couldn't be found
 				console() << "SettingsManager: Could not find settings value for field name '" << jsonFieldName << "' in json file" << endl;
 				return;
 			}
-			*target = json.getValueForKey<T>(jsonFieldName);
+			*target = mAppSettingsDoc.getValueForKey<T>(jsonFieldName);
 			console() << "SettingsManager: Set '" << jsonFieldName << "' to '" << castToString(target) << "' from json file" << endl;
 		}
 		catch (Exception e) {
@@ -106,7 +107,7 @@ protected:
 	template <> std::string castToString<std::string>(std::string* target) { return *target; }
 
 	//! Base appSettings json
-	ci::JsonTree& mAppSettingsDoc = ci::JsonTree();
+	ci::JsonTree mAppSettingsDoc;
 };
 
 }

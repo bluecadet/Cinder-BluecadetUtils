@@ -11,9 +11,7 @@ namespace bluecadet {
 namespace utils {
 
 // Initialization
-SettingsManager::SettingsManager(){
-
-	mAppSettingsDoc = JsonTree();
+SettingsManager::SettingsManager() {
 
 	// General
 	mConsoleWindowEnabled = true;
@@ -24,7 +22,7 @@ SettingsManager::SettingsManager(){
 
 	// Graphics
 	mVerticalSync = true;
-	
+
 	// Debug
 	mDebugMode = true;
 	mDrawMinimap = true;
@@ -34,7 +32,7 @@ SettingsManager::SettingsManager(){
 	mDebugBorderless = true;
 	mShowMouse = true;
 	mDebugWindowSize = ivec2(0);
-	
+
 	// Analytics
 	mAnalyticsAppName = "";
 	mAnalyticsTrackingId = "";
@@ -54,26 +52,26 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 			mAppSettingsDoc = (JsonTree)tree;
 
 			// General
-			setFieldFromJson(&mConsoleWindowEnabled, "settings.general.consoleWindowEnabled", mAppSettingsDoc);
-			setFieldFromJson(&mFps, "settings.general.FPS", mAppSettingsDoc);
-			setFieldFromJson(&mAppVersion, "settings.general.appVersion", mAppSettingsDoc);
+			updatePropertyFromField(&mConsoleWindowEnabled, "settings.general.consoleWindowEnabled");
+			updatePropertyFromField(&mFps, "settings.general.FPS");
+			updatePropertyFromField(&mAppVersion, "settings.general.appVersion");
 
 			// Graphics
-			setFieldFromJson(&mVerticalSync, "settings.graphics.verticalSync", mAppSettingsDoc);
+			updatePropertyFromField(&mVerticalSync, "settings.graphics.verticalSync");
 
 			// Debug
-			setFieldFromJson(&mDebugMode, "settings.debug.debugMode", mAppSettingsDoc);
-			setFieldFromJson(&mDrawMinimap, "settings.debug.drawMinimap", mAppSettingsDoc);
-			setFieldFromJson(&mDebugDrawTouches, "settings.debug.drawTouches", mAppSettingsDoc);
-			setFieldFromJson(&mDebugDrawScreenLayout, "settings.debug.drawScreenLayout", mAppSettingsDoc);
-			setFieldFromJson(&mDebugFullscreen, "settings.debug.fullscreen", mAppSettingsDoc);
-			setFieldFromJson(&mDebugBorderless, "settings.debug.borderless", mAppSettingsDoc);
-			setFieldFromJson(&mShowMouse, "settings.debug.showMouse", mAppSettingsDoc);
+			updatePropertyFromField(&mDebugMode, "settings.debug.debugMode");
+			updatePropertyFromField(&mDrawMinimap, "settings.debug.drawMinimap");
+			updatePropertyFromField(&mDebugDrawTouches, "settings.debug.drawTouches");
+			updatePropertyFromField(&mDebugDrawScreenLayout, "settings.debug.drawScreenLayout");
+			updatePropertyFromField(&mDebugFullscreen, "settings.debug.fullscreen");
+			updatePropertyFromField(&mDebugBorderless, "settings.debug.borderless");
+			updatePropertyFromField(&mShowMouse, "settings.debug.showMouse");
 
 			// Analytics
-			setFieldFromJson(&mAnalyticsAppName, "settings.analytics.appName", mAppSettingsDoc);
-			setFieldFromJson(&mAnalyticsTrackingId, "settings.analytics.trackingID", mAppSettingsDoc);
-			setFieldFromJson(&mAnalyticsClientId, "settings.analytics.clientID", mAppSettingsDoc);
+			updatePropertyFromField(&mAnalyticsAppName, "settings.analytics.appName");
+			updatePropertyFromField(&mAnalyticsTrackingId, "settings.analytics.trackingID");
+			updatePropertyFromField(&mAnalyticsClientId, "settings.analytics.clientID");
 
 		} catch (Exception e) {
 			console() << "SettingsManager: ERROR: Could not load settings json: " << e.what() << endl;
@@ -91,14 +89,14 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 
 void SettingsManager::applySettings(ci::app::App::Settings* appSettings) {
 	appSettings->setConsoleWindowEnabled(mConsoleWindowEnabled);
-	appSettings->setFrameRate(mFps);
-	appSettings->setFullScreen(mDebugFullscreen);
+	appSettings->setFrameRate((float)mFps);
 
 	if (mDebugWindowSize.x > 0 && mDebugWindowSize.y > 0) {
 		appSettings->setWindowSize(mDebugWindowSize);
 	}
 
 	appSettings->setBorderless(mDebugBorderless);
+	appSettings->setFullScreen(mDebugFullscreen);
 }
 
 void SettingsManager::parseArgumentsMap(const std::map<std::string, std::string>& argsMap) {
@@ -108,7 +106,7 @@ void SettingsManager::parseArgumentsMap(const std::map<std::string, std::string>
 
 	// process command line args
 	for (std::pair<std::string, std::string> arg : argsMap) {
-		
+
 		if (arg.first == "debug") {
 			mDebugMode = arg.second == "true";
 		}
