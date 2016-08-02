@@ -42,8 +42,6 @@ public:
 	bool			mConsoleWindowEnabled;
 	int				mFps;
 	std::string		mAppVersion;
-	int				mAppWidth;
-	int				mAppHeight;
 
 	//! Graphics
 	bool			mVerticalSync;
