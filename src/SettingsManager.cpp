@@ -17,8 +17,6 @@ SettingsManager::SettingsManager() {
 	mConsoleWindowEnabled = true;
 	mFps = 60;
 	mAppVersion = "";
-	mAppWidth = 1920;
-	mAppHeight = 1080;
 
 	// Graphics
 	mVerticalSync = true;
