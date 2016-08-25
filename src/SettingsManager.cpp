@@ -28,7 +28,7 @@ SettingsManager::SettingsManager() {
 	mDebugDrawTouches = false;
 	mDebugDrawScreenLayout = false;
 	mDebugFullscreen = true;
-	mDebugBorderless = true;
+	mDebugBorderless = false;
 	mShowMouse = true;
 	mDebugWindowSize = ivec2(0);
 
@@ -41,10 +41,6 @@ SettingsManager::~SettingsManager() {}
 
 // Pull in the shared/standard app settings JSON
 void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings* appSettings) {
-
-	// default window size to main display size
-	mDebugWindowSize = Display::getMainDisplay()->getSize();
-
 	// If the path exists, load it
 	if (fs::exists(jsonPath)) {
 		console() << "SettingsManager: Loading settings from '" << jsonPath << "'" << endl;
@@ -99,14 +95,15 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 		}
 	});
 
+	// Default window size to main display size if no custom size has been determined
+	if (mDebugWindowSize == ivec2(0)) {
+		mDebugWindowSize = Display::getMainDisplay()->getSize();
+	}
+
 	// Apply settings
 	appSettings->setConsoleWindowEnabled(mConsoleWindowEnabled);
 	appSettings->setFrameRate((float)mFps);
-
-	if (mDebugWindowSize.x > 0 && mDebugWindowSize.y > 0) {
-		appSettings->setWindowSize(mDebugWindowSize);
-	}
-
+	appSettings->setWindowSize(mDebugWindowSize);
 	appSettings->setBorderless(mDebugBorderless);
 	appSettings->setFullScreen(mDebugFullscreen);
 }
