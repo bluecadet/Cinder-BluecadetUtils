@@ -99,13 +99,6 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 	if (mDebugWindowSize == ivec2(0)) {
 		mDebugWindowSize = Display::getMainDisplay()->getSize();
 	}
-
-	// Apply settings
-	appSettings->setConsoleWindowEnabled(mConsoleWindowEnabled);
-	appSettings->setFrameRate((float)mFps);
-	appSettings->setWindowSize(mDebugWindowSize);
-	appSettings->setBorderless(mDebugBorderless);
-	appSettings->setFullScreen(mDebugFullscreen);
 }
 
 void SettingsManager::addCommandLineParser(const std::string &key, CommandLineArgParserFn callback)
