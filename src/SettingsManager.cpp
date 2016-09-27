@@ -74,7 +74,7 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 		} catch (Exception e) {
 			console() << "SettingsManager: ERROR: Could not load settings json: " << e.what() << endl;
 		}
-	} else {
+	} else if (!jsonPath.empty()) {
 		console() << "SettingsManager: ERROR: Settings file does not exist at '" << jsonPath << "'" << std::endl;
 	}
 
