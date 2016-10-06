@@ -94,6 +94,8 @@ void SettingsManager::setup(const ci::fs::path& jsonPath, ci::app::App::Settings
 			mDebugWindowSize = ivec2(stoi(wStr), stoi(hStr));
 		}
 	});
+	
+	parseCommandLineArgs(appSettings->getCommandLineArgs());
 
 	// Default window size to main display size if no custom size has been determined
 	if (mDebugWindowSize == ivec2(0)) {
