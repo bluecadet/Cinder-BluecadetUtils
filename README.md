@@ -1,5 +1,11 @@
 # Cinder-BluecadetUtils
 
+## [Histogram](src/Histogram.h)
+
+The histogram is a lightweight implementation of a classic histogram with a fixed size. You can increment one value at a time or access all values directly. The class provides various helpers to compute the min/max etc.
+
+Sample App: [samples/HistogramSample/src/HistogramApp.cpp](samples/HistogramSample/src/HistogramApp.cpp)
+
 ## [ImageManager](src/ImageManager.h)
 
 The image manager loads and caches images from asset directories and makes them accessible via their filename.
