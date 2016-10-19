@@ -4,7 +4,7 @@
 
 The histogram is a lightweight implementation of a classic histogram with a fixed size. You can increment one value at a time or access all values directly. The class provides various helpers to compute the min/max etc.
 
-Sample App: [samples/HistogramSample/src/HistogramApp.cpp](samples/HistogramSample/src/HistogramApp.cpp)
+Sample App: [samples/HistogramSample/src/HistogramSampleApp.cpp](samples/HistogramSample/src/HistogramSampleApp.cpp)
 
 ## [ImageManager](src/ImageManager.h)
 
