@@ -20,6 +20,6 @@ Sample App: [samples/ThreadedTaskQueueSample/src/ThreadedTaskQueueSampleApp.cpp]
 
 The timed task queue runs on the current thread and automatically runs tasks that you give it on each frame for a certain amount of time. Once the time runs out it will resume running tasks on the next frame. This is helpful if you have to run a lot of tasks on the main thread but don't want to do it all in one frame to prevent stuttering. We used this in NASM for creating orbs, which all needed textures to be created on the main thread.
 
-Sample App: [samples/TimedTaskQueueSample/src/TimedTaskQueueSample.cpp](samples/TimedTaskQueueSample/src/TimedTaskQueueSample.cpp)
+Sample App: [samples/TimedTaskQueueSample/src/TimedTaskQueueSampleApp.cpp](samples/TimedTaskQueueSample/src/TimedTaskQueueSampleApp.cpp)
 
 Version 1.0.0
