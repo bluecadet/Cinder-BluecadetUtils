@@ -10,8 +10,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{12FC6BBC-8460-42C8-86ED-AC32AD482C90}</ProjectGuid>
-    <RootNamespace>ThreadManagerSample</RootNamespace>
+    <ProjectGuid>{90C982FE-A855-4547-959D-1FE5568671CC}</ProjectGuid>
+    <RootNamespace>TimedTaskQueueSample</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -101,15 +101,17 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
-    <ClCompile Include="..\src\ThreadManagerSampleApp.cpp" />
+    <ClCompile Include="..\src\TimedTaskQueueSampleApp.cpp" />
+    <ClCompile Include="..\..\..\src\Histogram.cpp" />
     <ClCompile Include="..\..\..\src\ImageManager.cpp" />
-    <ClCompile Include="..\..\..\src\ThreadManager.cpp" />
+    <ClCompile Include="..\..\..\src\ThreadedTaskQueue.cpp" />
     <ClCompile Include="..\..\..\src\TimedTaskQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
+    <ClInclude Include="..\..\..\src\Histogram.h" />
     <ClInclude Include="..\..\..\src\ImageManager.h" />
-    <ClInclude Include="..\..\..\src\ThreadManager.h" />
+    <ClInclude Include="..\..\..\src\ThreadedTaskQueue.h" />
     <ClInclude Include="..\..\..\src\TimedTaskQueue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

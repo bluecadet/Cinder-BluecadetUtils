@@ -10,7 +10,7 @@ using namespace std;
 
 using namespace bluecadet::utils;
 
-class TaskQueueSampleApp : public App {
+class TimedTaskQueueSampleApp : public App {
 public:
 	void setup() override;
 	void mouseDown(MouseEvent event) override;
@@ -21,13 +21,13 @@ public:
 	TimedTaskQueue mTaskQueue;
 };
 
-void TaskQueueSampleApp::setup() {
+void TimedTaskQueueSampleApp::setup() {
 	// Set the max execution time to stay below the duration of one frame to ensure a smooth frame rate
 	mTaskQueue.setMaxExecutionTime(0.5 * 1.0 / (double)getFrameRate());
 	createTasks();
 }
 
-void TaskQueueSampleApp::createTasks() {
+void TimedTaskQueueSampleApp::createTasks() {
 	// Add a lot of tasks that will be executed in sequence but spread out across frames
 	for (int i = 0; i < 100000; ++i) {
 		mTaskQueue.add([=] {
@@ -36,12 +36,12 @@ void TaskQueueSampleApp::createTasks() {
 	}
 }
 
-void TaskQueueSampleApp::mouseDown(MouseEvent event) {
+void TimedTaskQueueSampleApp::mouseDown(MouseEvent event) {
 	createTasks();
 }
 
-void TaskQueueSampleApp::draw() {
-	
+void TimedTaskQueueSampleApp::draw() {
+
 	gl::clear(Color(0, 0, 0));
 
 	// FPS should stay at 60 as tasks are executed
@@ -50,4 +50,4 @@ void TaskQueueSampleApp::draw() {
 	gl::drawString("FPS: " + to_string(getAverageFps()), vec2(0, 128), Color::gray(0.5f), Font("Arial", 64));
 }
 
-CINDER_APP(TaskQueueSampleApp, RendererGl)
+CINDER_APP(TimedTaskQueueSampleApp, RendererGl)

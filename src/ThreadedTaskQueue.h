@@ -7,15 +7,15 @@
 namespace bluecadet {
 namespace utils {
 
-typedef std::shared_ptr<class ThreadManager> ThreadManagerRef;
+typedef std::shared_ptr<class ThreadedTaskQueue> ThreadedTaskQueueRef;
 typedef std::shared_ptr<std::thread> ThreadRef;
 typedef std::function<void(void)> TaskFn;
 
-class ThreadManager {
+class ThreadedTaskQueue {
 
 public:
-	ThreadManager();
-	~ThreadManager();
+	ThreadedTaskQueue();
+	~ThreadedTaskQueue();
 
 	//! Reconfigures the manager to spawn a new number of threads. Cancels and destroys all pending tasks. Running tasks will be completed. This method is thread-safe and potentially blocking.
 	void setup(const int numThreads = 1);

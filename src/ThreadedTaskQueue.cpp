@@ -1,4 +1,4 @@
-#include "ThreadManager.h"
+#include "ThreadedTaskQueue.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -7,15 +7,15 @@ using namespace std;
 namespace bluecadet {
 namespace utils {
 
-ThreadManager::ThreadManager() {
-	AppBase::get()->getSignalCleanup().connect(bind(&ThreadManager::destroy, this));
+ThreadedTaskQueue::ThreadedTaskQueue() {
+	AppBase::get()->getSignalCleanup().connect(bind(&ThreadedTaskQueue::destroy, this));
 }
 
-ThreadManager::~ThreadManager() {
+ThreadedTaskQueue::~ThreadedTaskQueue() {
 	destroy();
 }
 
-void ThreadManager::setup(const int numThreads) {
+void ThreadedTaskQueue::setup(const int numThreads) {
 	destroy();
 
 	lock_guard<mutex> lock(mThreadMutex);
@@ -23,20 +23,20 @@ void ThreadManager::setup(const int numThreads) {
 
 	for (int i = 0; i < numThreads; ++i) {
 		try {
-			ThreadRef thread = ThreadRef(new std::thread(bind(&ThreadManager::processPendingTasks, this)));
+			ThreadRef thread = ThreadRef(new std::thread(bind(&ThreadedTaskQueue::processPendingTasks, this)));
 			mThreads.push_back(thread);
 
 		} catch (Exception e) {
-			cout << "ThreadManager: Could not start worker thread: " << e.what() << endl;
+			cout << "ThreadedTaskQueue: Could not start worker thread: " << e.what() << endl;
 		}
 	}
 
 	mTaskCondition.notify_all();
 
-	cout << "ThreadManager: Started " << to_string(mThreads.size()) << " worked threads" << endl;
+	cout << "ThreadedTaskQueue: Started " << to_string(mThreads.size()) << " worked threads" << endl;
 }
 
-void ThreadManager::destroy() {
+void ThreadedTaskQueue::destroy() {
 	lock_guard<mutex> lock(mThreadMutex);
 
 	mIsCanceled = true;
@@ -48,30 +48,30 @@ void ThreadManager::destroy() {
 				thread->join();
 			}
 		} catch (Exception e) {
-			cout << "ThreadManager: Could not stop worker thread: " << e.what() << endl;
+			cout << "ThreadedTaskQueue: Could not stop worker thread: " << e.what() << endl;
 		}
 	}
 
 	mThreads.clear();
 }
 
-void ThreadManager::addTask(TaskFn task) {
+void ThreadedTaskQueue::addTask(TaskFn task) {
 	try {
 		unique_lock<mutex> lock(mTaskMutex);
 		mPendingTasks.push_back(task);
 		mTaskCondition.notify_one();
 
 	} catch (Exception e) {
-		cout << "ThreadManager: Could not add task: " << e.what() << endl;
+		cout << "ThreadedTaskQueue: Could not add task: " << e.what() << endl;
 	}
 }
 
-size_t ThreadManager::getNumPendingTasks() {
+size_t ThreadedTaskQueue::getNumPendingTasks() {
 	unique_lock<mutex> lock(mTaskMutex);
 	return mPendingTasks.size();
 }
 
-void ThreadManager::processPendingTasks() {
+void ThreadedTaskQueue::processPendingTasks() {
 	while (true) {
 		TaskFn task = nullptr;
 
@@ -91,7 +91,7 @@ void ThreadManager::processPendingTasks() {
 			mPendingTasks.pop_front();
 
 		} catch (Exception e) {
-			cout << "ThreadManager: Error while processing tasks: " << e.what() << endl;
+			cout << "ThreadedTaskQueue: Error while processing tasks: " << e.what() << endl;
 		}
 
 		if (task) {
@@ -99,7 +99,7 @@ void ThreadManager::processPendingTasks() {
 				// run task
 				task();
 			} catch (Exception e) {
-				cout << "ThreadManager: Error while executing task: " << e.what() << endl;
+				cout << "ThreadedTaskQueue: Error while executing task: " << e.what() << endl;
 			}
 		}
 	}
