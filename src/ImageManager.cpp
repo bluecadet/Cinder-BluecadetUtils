@@ -90,7 +90,7 @@ std::string ImageManager::extractFileExtension(const std::string &filepath) {
 }
 
 ci::gl::Texture2dRef ImageManager::getTexture(const std::string &fileName) {
-	auto& it = mTexturesMap.find(fileName);
+	const auto & it = mTexturesMap.find(fileName);
 	if (it == mTexturesMap.end()) {
 		cout << "ImageManager: Could not find image '" << fileName << "'. Check that it exists in folder." << endl;
 		return nullptr;
