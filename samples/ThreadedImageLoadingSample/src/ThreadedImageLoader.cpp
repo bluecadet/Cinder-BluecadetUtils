@@ -39,6 +39,8 @@ namespace utils {
 		mCallbacks[path].push_back(callback);
 		
 		mTasks.addTask([=] () {
+			cout << "loading " << path << endl;
+			
 			// worker thread
 			auto data = loadFile(path);
 			createSurface(path, data);
@@ -74,24 +76,33 @@ namespace utils {
 	}
 	
 	void ThreadedImageLoader::triggerCallbacks(const std::string path) {
-		lock_guard<mutex> lock(mCallbackMutex);
-		auto cbIt = mCallbacks.find(path);
-		if (cbIt != mCallbacks.end()) {
+		std::vector<Callback> callbacks;
+		
+		{
+			// grab callbacks
+			lock_guard<mutex> lock(mCallbackMutex);
+			auto cbIt = mCallbacks.find(path);
 			
-			// try to get texture
-			gl::TextureRef tex = nullptr;
-			auto texIt = mTextureCache.find(path);
-			if (texIt != mTextureCache.end()) {
-				tex = texIt->second;
+			if (cbIt != mCallbacks.end()) {
+				
+				// temp copy of callbacks
+				callbacks = cbIt->second;
+				
+				// clear callbacks for this path before triggering to prevent blocking
+				mCallbacks.erase(cbIt);
 			}
-			
-			// trigger callbacks w texture or nullptr
-			for (auto callback : cbIt->second) {
-				callback(path, tex);
-			}
-			
-			// clear callbacks for this path
-			mCallbacks.erase(cbIt);
+		}
+		
+		// try to get texture
+		gl::TextureRef tex = nullptr;
+		auto texIt = mTextureCache.find(path);
+		if (texIt != mTextureCache.end()) {
+			tex = texIt->second;
+		}
+		
+		// trigger callbacks w texture or nullptr
+		for (auto callback : callbacks) {
+			callback(path, tex);
 		}
 	}
 	

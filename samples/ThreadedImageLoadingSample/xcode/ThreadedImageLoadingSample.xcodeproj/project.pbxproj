@@ -52,7 +52,6 @@
 		7BFB794CEAFF40BF9C41171F /* ThreadedImageLoadingSampleApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = ThreadedImageLoadingSampleApp.cpp; path = ../src/ThreadedImageLoadingSampleApp.cpp; sourceTree = "<group>"; };
 		7DC4D6D98B5343C281EC8A01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* ThreadedImageLoadingSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreadedImageLoadingSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		BFFDA9742C7A4B3095B87139 /* Animation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Animation.h; path = ../../../src/Animation.h; sourceTree = "<group>"; };
 		C4816C2E5AE1439CA6DBE5FD /* Histogram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = Histogram.cpp; path = ../../../src/Histogram.cpp; sourceTree = "<group>"; };
 		C8F1A056750A4B5CAC761EDB /* ThreadedTaskQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ThreadedTaskQueue.h; path = ../../../src/ThreadedTaskQueue.h; sourceTree = "<group>"; };
 		DE4EBF4B0F3A4CFF94544E39 /* ThreadedImageLoadingSample_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = ThreadedImageLoadingSample_Prefix.pch; sourceTree = "<group>"; };
@@ -142,7 +141,6 @@
 				F7BD784C87964FD3A2A2C0DD /* ImageManager.cpp */,
 				4FF80BFB425948968940A4FF /* ThreadedTaskQueue.cpp */,
 				E5A47658F0574C3B96AE8073 /* TimedTaskQueue.cpp */,
-				BFFDA9742C7A4B3095B87139 /* Animation.h */,
 				1268AB585C6741BD96EF2A56 /* Histogram.h */,
 				35825F80B977443E97C6ACA9 /* ImageManager.h */,
 				C8F1A056750A4B5CAC761EDB /* ThreadedTaskQueue.h */,

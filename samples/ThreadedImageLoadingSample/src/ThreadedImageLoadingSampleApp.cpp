@@ -23,6 +23,11 @@ class ThreadedImageLoadingSampleApp : public App {
 void ThreadedImageLoadingSampleApp::setup()
 {
 	console() << "starting setup..." << endl;
+	for (int i = 0; i < 10000; ++i) {
+		mLoader.load(getAssetPath("blue.png").string(), [=] (const string path, gl::TextureRef texture) {
+			console() << "loaded " << path << endl;
+		});
+	}
 	mLoader.load(getAssetPath("blue.png").string(), [=] (const string path, gl::TextureRef texture) {
 		console() << "loaded " << path << endl;
 	});
