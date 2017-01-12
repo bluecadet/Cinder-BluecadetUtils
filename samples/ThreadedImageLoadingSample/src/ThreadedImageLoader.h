@@ -41,8 +41,8 @@ protected:
 	std::mutex mCallbackMutex;
 	std::mutex mSurfaceMutex;
 	
-	ThreadedTaskQueue mWorkerThreadedTasks; // worker thread
-	TimedTaskQueue mMainThreadTasks; // main thread
+	ThreadedTaskQueue mWorkerThreadedTasks;
+	TimedTaskQueue mMainThreadTasks;
 	
 };
 

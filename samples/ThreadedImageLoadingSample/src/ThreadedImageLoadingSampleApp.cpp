@@ -16,21 +16,44 @@ class ThreadedImageLoadingSampleApp : public App {
 	void update() override;
 	void draw() override;
 	
+	void loadSimple();
+	void loadWithLoader();
+	
+	ThreadedTaskQueue mWorkerThreadedTasks;
 	ThreadedImageLoader mLoader;
 	
 };
 
 void ThreadedImageLoadingSampleApp::setup()
 {
+	loadSimple();
+	loadWithLoader();
+}
+
+void ThreadedImageLoadingSampleApp::loadSimple() {
+	mWorkerThreadedTasks.addTask([=]{
+		auto data = loadImage(getAssetPath("blue.png"));
+		
+		// Since our surface is a shared ptr it'll live in heap memory and not in stack.
+		// If you're using a local surface by value, make sure you're not causing a stack
+		// overflow with large surfaces.
+		auto surface = Surface::create(data);
+		
+		// App::get() is redundant here since we're already in App, but kept it for clarity
+		App::get()->dispatchAsync([=]{
+			auto texture = gl::Texture::create(*surface);
+			console() << "texture loaded" << endl;
+		});
+	});
+}
+
+void ThreadedImageLoadingSampleApp::loadWithLoader() {
 	console() << "starting setup..." << endl;
 	for (int i = 0; i < 10000; ++i) {
 		mLoader.load(getAssetPath("blue.png").string(), [=] (const string path, gl::TextureRef texture) {
 			console() << "loaded " << path << endl;
 		});
 	}
-	mLoader.load(getAssetPath("blue.png").string(), [=] (const string path, gl::TextureRef texture) {
-		console() << "loaded " << path << endl;
-	});
 	mLoader.load(getAssetPath("white.png").string(), [=] (const string path, gl::TextureRef texture) {
 		console() << "loaded " << path << endl;
 	});
