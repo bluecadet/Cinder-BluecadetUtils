@@ -6,6 +6,7 @@
 #include "cinder/gl/Texture.h"
 
 #include "ThreadedTaskQueue.h"
+#include "TimedTaskQueue.h"
 
 namespace bluecadet {
 namespace utils {
@@ -16,7 +17,7 @@ class ThreadedImageLoader {
 	
 public:
 	
-	ThreadedImageLoader(const unsigned int numThreads = 3);
+	ThreadedImageLoader(const unsigned int numThreads = 4, const double maxMainThreadBlockDuration = 0.05);
 	virtual ~ThreadedImageLoader();
 	
 	void load(const std::string path, Callback callback);
@@ -40,7 +41,8 @@ protected:
 	std::mutex mCallbackMutex;
 	std::mutex mSurfaceMutex;
 	
-	ThreadedTaskQueue mTasks;
+	ThreadedTaskQueue mWorkerThreadedTasks; // worker thread
+	TimedTaskQueue mMainThreadTasks; // main thread
 	
 };
 

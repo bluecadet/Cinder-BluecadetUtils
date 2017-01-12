@@ -11,8 +11,10 @@ using namespace std;
 namespace bluecadet {
 namespace utils {
 
-	ThreadedImageLoader::ThreadedImageLoader(const unsigned int numThreads) {
-		mTasks.setup(numThreads);
+	ThreadedImageLoader::ThreadedImageLoader(const unsigned int numThreads, const double maxMainThreadBlockDuration) :
+		mMainThreadTasks(true, maxMainThreadBlockDuration)
+	{
+		mWorkerThreadedTasks.setup(numThreads);
 	}
 	
 	ThreadedImageLoader::~ThreadedImageLoader() {
@@ -38,16 +40,14 @@ namespace utils {
 		// load file and add callback
 		mCallbacks[path].push_back(callback);
 		
-		mTasks.addTask([=] () {
+		mWorkerThreadedTasks.addTask([=] () {
 			cout << "loading " << path << endl;
 			
-			// worker thread
 			auto data = loadFile(path);
 			createSurface(path, data);
 			
-			App::get()->dispatchAsync([=]{
-				// main thread
-				createTexture(path); // this could be offloaded to a timed queue for additional optimization
+			mMainThreadTasks.add([=]{
+				createTexture(path);
 				triggerCallbacks(path);
 			});
 		});
