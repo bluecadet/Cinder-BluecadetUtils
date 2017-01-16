@@ -22,12 +22,14 @@ class ThreadedImageLoadingSampleApp : public App {
 	ThreadedTaskQueue mWorkerThreadedTasks;
 	ThreadedImageLoader mLoader;
 	
+	gl::Texture2dRef mTexture;
 };
 
 void ThreadedImageLoadingSampleApp::setup()
 {
+	mWorkerThreadedTasks.setup();
 	loadSimple();
-	loadWithLoader();
+//	loadWithLoader();
 }
 
 void ThreadedImageLoadingSampleApp::loadSimple() {
@@ -41,7 +43,7 @@ void ThreadedImageLoadingSampleApp::loadSimple() {
 		
 		// App::get() is redundant here since we're already in App, but kept it for clarity
 		App::get()->dispatchAsync([=]{
-			auto texture = gl::Texture::create(*surface);
+			mTexture = gl::Texture::create(*surface);
 			console() << "texture loaded" << endl;
 		});
 	});
