@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -190,6 +190,7 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\ThreadedImageLoader.cpp" />
     <ClCompile Include="..\src\ThreadedImageLoadingSampleApp.cpp" />
     <ClCompile Include="..\..\..\src\Histogram.cpp" />
     <ClCompile Include="..\..\..\src\ImageManager.cpp" />
@@ -197,6 +198,7 @@
     <ClCompile Include="..\..\..\src\TimedTaskQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\ThreadedImageLoader.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\..\..\src\Animation.h" />
     <ClInclude Include="..\..\..\src\Histogram.h" />

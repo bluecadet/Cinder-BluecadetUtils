@@ -28,8 +28,8 @@ class ThreadedImageLoadingSampleApp : public App {
 void ThreadedImageLoadingSampleApp::setup()
 {
 	mWorkerThreadedTasks.setup();
-	loadSimple();
-//	loadWithLoader();
+	//loadSimple();
+	loadWithLoader();
 }
 
 void ThreadedImageLoadingSampleApp::loadSimple() {
@@ -84,9 +84,9 @@ void ThreadedImageLoadingSampleApp::draw()
 	gl::draw(mLoader.getTexture(getAssetPath("small-cadet_black-01.png").string()));
 	
 	// you can also check for textures explicitly
-//	if (mLoader.hasTexture(getAssetPath("small-cadet_black-01.png").string())) {
-//		gl::draw(mLoader.getTexture(getAssetPath("small-cadet_black-01.png").string()));
-//	}
+	if (mLoader.hasTexture(getAssetPath("small-cadet_black-01.png").string())) {
+		gl::draw(mLoader.getTexture(getAssetPath("small-cadet_black-01.png").string()));
+	}
 }
 
 CINDER_APP( ThreadedImageLoadingSampleApp, RendererGl )
