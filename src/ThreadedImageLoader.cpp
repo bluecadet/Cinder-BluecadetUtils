@@ -1,6 +1,7 @@
 
 #include "ThreadedImageLoader.h"
 
+#include "cinder/Log.h"
 #include "cinder/Filesystem.h"
 #include "cinder/imageIo.h"
 
@@ -10,6 +11,8 @@ using namespace std;
 
 namespace bluecadet {
 namespace utils {
+
+	bool ThreadedImageLoader::sIsInitialized = false;
 
 	ThreadedImageLoader::ThreadedImageLoader(const unsigned int numThreads, const double maxMainThreadBlockDuration) :
 		mMainThreadTasks(true, maxMainThreadBlockDuration)
@@ -22,6 +25,7 @@ namespace utils {
 	}
 	
 	void ThreadedImageLoader::load(const std::string path, Callback callback) {
+
 		// check texture cache
 		auto texIt = mTextureCache.find(path);
 		if (texIt != mTextureCache.end()) {
@@ -41,12 +45,25 @@ namespace utils {
 		mCallbacks[path].push_back(callback);
 		
 		mWorkerThreadedTasks.addTask([=] () {
-			cout << "loading " << path << endl;
+			initializeLoader();
+
+			if (!isLoading(path)) return; // abort if request has been cancelled
 			
 			auto data = loadFile(path);
+
+			if (!data) {
+				// Can't load image
+				cancel(path);
+				return;
+			}
+
+			if (!isLoading(path)) return; // abort if request has been cancelled
+
 			createSurface(path, data);
 			
 			mMainThreadTasks.add([=]{
+				if (!isLoading(path)) return; // abort if request has been cancelled
+
 				createTexture(path);
 				triggerCallbacks(path);
 			});
@@ -54,25 +71,43 @@ namespace utils {
 	}
 	
 	void ThreadedImageLoader::cancel(const std::string path) {
+		// trigger pending callbacks immediately w/o waiting for load to finish
+		// this will remove the callbacks and cancel any pending requests
+		triggerCallbacks(path);
+	}
+
+	bool ThreadedImageLoader::isLoading(const std::string path) {
+		lock_guard<mutex> lock(mCallbackMutex);
+		auto cbIt = mCallbacks.find(path);
+		return cbIt != mCallbacks.end();
+	}
+	
+	bool ThreadedImageLoader::hasTexture(const std::string path) {
+		lock_guard<mutex> lock(mTextureMutex);
+		return mTextureCache.find(path) != mTextureCache.end();
+	}
+
+	void ThreadedImageLoader::removeTexture(const std::string path) {
+		// remove texture if it was already loaded
+		{
+			lock_guard<mutex> lock(mTextureMutex);
+			auto it = mTextureCache.find(path);
+			if (it != mTextureCache.end()) {
+				mTextureCache.erase(path);
+			}
+		}
+
+		// trigger pending callbacks
 		triggerCallbacks(path);
 	}
 	
-	bool ThreadedImageLoader::hasTexture(const std::string path) const {
-		return mTextureCache.find(path) != mTextureCache.end();
-	}
-	
-	const ci::gl::TextureRef ThreadedImageLoader::getTexture(const std::string path) const {
+	const ci::gl::TextureRef ThreadedImageLoader::getTexture(const std::string path) {
+		lock_guard<mutex> lock(mTextureMutex);
 		auto it = mTextureCache.find(path);
 		if (it == mTextureCache.end()) {
 			return nullptr;
 		}
 		return it->second;
-	}
-	
-	bool ThreadedImageLoader::isLoading(const std::string path) {
-		lock_guard<mutex> lock(mCallbackMutex);
-		auto cbIt = mCallbacks.find(path);
-		return cbIt != mCallbacks.end();
 	}
 	
 	void ThreadedImageLoader::triggerCallbacks(const std::string path) {
@@ -93,11 +128,15 @@ namespace utils {
 			}
 		}
 		
-		// try to get texture
 		gl::TextureRef tex = nullptr;
-		auto texIt = mTextureCache.find(path);
-		if (texIt != mTextureCache.end()) {
-			tex = texIt->second;
+
+		{
+			// try to get texture
+			lock_guard<mutex> lock(mTextureMutex);
+			auto texIt = mTextureCache.find(path);
+			if (texIt != mTextureCache.end()) {
+				tex = texIt->second;
+			}
 		}
 		
 		// trigger callbacks w texture or nullptr
@@ -106,8 +145,37 @@ namespace utils {
 		}
 	}
 	
+	void ThreadedImageLoader::initializeLoader() {
+		lock_guard<mutex> lock(mInitializationMutex);
+
+		if (sIsInitialized) {
+			return;
+		}
+
+		App::get()->dispatchSync([=] {
+			try {
+				// load empty image to initialize Cinder's internal load factory on the main thread
+				CI_LOG_D("Initializing Cinder loader");
+				ci::loadImage("");
+			} catch (Exception e) {
+			}
+			sIsInitialized = true;
+		});
+	}
+
 	ci::ImageSourceRef ThreadedImageLoader::loadFile(const std::string path) {
-		return ci::loadImage(path);
+		try {
+			if (ci::fs::exists(path)) {
+				auto data = ci::loadImage(path);
+				return data;
+			} else {
+				CI_LOG_E("Could not find image at " + path);
+				return nullptr;
+			}
+		} catch (Exception e) {
+			CI_LOG_EXCEPTION("Could not load image at " + path, e);
+			return nullptr;
+		}
 	}
 	
 	void ThreadedImageLoader::createSurface(const std::string path, const ci::ImageSourceRef source) {
@@ -120,6 +188,7 @@ namespace utils {
 		ci::SurfaceRef surface = nullptr;
 		
 		{
+			// try to get the surface
 			lock_guard<mutex> lock(mSurfaceMutex);
 			auto surfIt = mSurfaceCache.find(path);
 			if (surfIt == mSurfaceCache.end()) {
@@ -132,9 +201,17 @@ namespace utils {
 			// remove surface from cache when done
 			mSurfaceCache.erase(surfIt);
 		}
+
+		if (!surface) {
+			CI_LOG_E("Could not create texture for '" + path + "' because surface is empty");
+			return;
+		}
 		
-		// create texture and store data on gpu memory
-		mTextureCache[path] = gl::Texture::create(*surface);
+		{
+			// create texture and store data on gpu memory
+			lock_guard<mutex> lock(mTextureMutex);
+			mTextureCache[path] = gl::Texture::create(*surface);
+		}
 	}
 	
 }

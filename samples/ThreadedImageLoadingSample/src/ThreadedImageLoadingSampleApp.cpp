@@ -2,6 +2,9 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
+#include "cinder/Log.h"
+#include "cinder/params/Params.h"
+
 #include "ThreadedImageLoader.h"
 
 using namespace ci;
@@ -10,83 +13,63 @@ using namespace std;
 using namespace bluecadet::utils;
 
 class ThreadedImageLoadingSampleApp : public App {
-  public:
+public:
 	void setup() override;
-	void mouseDown( MouseEvent event ) override;
-	void update() override;
 	void draw() override;
-	
-	void loadSimple();
-	void loadWithLoader();
-	
-	ThreadedTaskQueue mWorkerThreadedTasks;
+
 	ThreadedImageLoader mLoader;
-	
-	gl::Texture2dRef mTexture;
+	params::InterfaceGlRef mParams;
 };
 
-void ThreadedImageLoadingSampleApp::setup()
-{
-	mWorkerThreadedTasks.setup();
-	//loadSimple();
-	loadWithLoader();
-}
-
-void ThreadedImageLoadingSampleApp::loadSimple() {
-	mWorkerThreadedTasks.addTask([=]{
-		auto data = loadImage(getAssetPath("blue.png"));
-		
-		// Since our surface is a shared ptr it'll live in heap memory and not in stack.
-		// If you're using a local surface by value, make sure you're not causing a stack
-		// overflow with large surfaces.
-		auto surface = Surface::create(data);
-		
-		// App::get() is redundant here since we're already in App, but kept it for clarity
-		App::get()->dispatchAsync([=]{
-			mTexture = gl::Texture::create(*surface);
-			console() << "texture loaded" << endl;
+void ThreadedImageLoadingSampleApp::setup() {
+	mParams = params::InterfaceGl::create("Settings", ivec2(250, 150));
+	mParams->addButton("Load blue image", [=] {
+		mLoader.load(getAssetPath("bluecadet-blue.png").string(), [=](const string path, gl::TextureRef texture) {
+			CI_LOG_D("Loaded " + path);
 		});
 	});
-}
-
-void ThreadedImageLoadingSampleApp::loadWithLoader() {
-	console() << "starting setup..." << endl;
-	for (int i = 0; i < 10000; ++i) {
-		mLoader.load(getAssetPath("blue.png").string(), [=] (const string path, gl::TextureRef texture) {
-			console() << "loaded " << path << endl;
+	mParams->addButton("Load white image", [=] {
+		mLoader.load(getAssetPath("bluecadet-white.png").string(), [=](const string path, gl::TextureRef texture) {
+			CI_LOG_D("Loaded " + path);
 		});
-	}
-	mLoader.load(getAssetPath("white.png").string(), [=] (const string path, gl::TextureRef texture) {
-		console() << "loaded " << path << endl;
 	});
-	mLoader.load(getAssetPath("small-cadet_black-01.png").string(), [=] (const string path, gl::TextureRef texture) {
-		console() << "loaded " << path << endl;
+	mParams->addButton("Load cadet image", [=] {
+		mLoader.load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
+			CI_LOG_D("Loaded " + path);
+		});
 	});
-	console() << "...setup complete" << endl;
+	mParams->addButton("Load cadet x 1000", [=] {
+		for (int i = 0; i < 1000; ++i) {
+			mLoader.load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
+				if (texture) {
+					CI_LOG_D("Loaded cadet " + to_string(i));
+				} else {
+					CI_LOG_D("Could not load cadet " + to_string(i));
+				}
+			});
+		}
+	}, "key=l");
+	mParams->addButton("Cancel & remove cadet", [=] {
+		CI_LOG_D("Canceling cadet");
+		mLoader.cancel(getAssetPath("bluecadet-cadet.png").string());
+		mLoader.removeTexture(getAssetPath("bluecadet-cadet.png").string());
+	}, "key=c");
 }
 
-void ThreadedImageLoadingSampleApp::mouseDown( MouseEvent event )
-{
-}
-
-void ThreadedImageLoadingSampleApp::update()
-{
-}
-
-void ThreadedImageLoadingSampleApp::draw()
-{
+void ThreadedImageLoadingSampleApp::draw() {
 	gl::clear(Color(0, 0, 0));
 	gl::enableAlphaBlending();
-	
-	// getTexture will return nullptr if it doesn't exist, so the below would be safe
-	gl::draw(mLoader.getTexture(getAssetPath("blue.png").string()));
-	gl::draw(mLoader.getTexture(getAssetPath("white.png").string()));
-	gl::draw(mLoader.getTexture(getAssetPath("small-cadet_black-01.png").string()));
-	
-	// you can also check for textures explicitly
-	if (mLoader.hasTexture(getAssetPath("small-cadet_black-01.png").string())) {
-		gl::draw(mLoader.getTexture(getAssetPath("small-cadet_black-01.png").string()));
+
+	// getTexture will return nullptr if it doesn't exist, so the below would be safe bcause draw() checks for nullptr
+	gl::draw(mLoader.getTexture(getAssetPath("bluecadet-blue.png").string()));
+	gl::draw(mLoader.getTexture(getAssetPath("bluecadet-white.png").string()));
+
+	// you can also check for textures explicitly if you want to be a responsible citizen
+	if (mLoader.hasTexture(getAssetPath("bluecadet-cadet.png").string())) {
+		gl::draw(mLoader.getTexture(getAssetPath("bluecadet-cadet.png").string()));
 	}
+
+	mParams->draw();
 }
 
-CINDER_APP( ThreadedImageLoadingSampleApp, RendererGl )
+CINDER_APP(ThreadedImageLoadingSampleApp, RendererGl)
