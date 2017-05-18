@@ -12,19 +12,29 @@ ShaderManager::ShaderManager(){}
 ShaderManager::~ShaderManager(){}
 
 void ShaderManager::reloadAll() {
-	console() << "ShaderManager: Reloading all shaders..." << endl;
+	CI_LOG_I("ShaderManager: Reloading all shaders...");
 
 	for (auto & infoPair : mShaderInfoMap) {
-		mShaderMap[infoPair.first] = loadShader(infoPair.second);
+		auto key = infoPair.first;
+		auto shader = loadShader(infoPair.second);
+		mShaderMap[key] = shader;
+		CI_LOG_I("ShaderManager: Set up shader '" + key + "'");
+		mDidUpdateShader.emit(infoPair.first, shader);
 	}
 
-	mReloadedSignal.emit();
+	mDidReloadAll.emit();
 }
 
 gl::GlslProgRef ShaderManager::setupShader(const std::string key, const ShaderInfo info) {
+	bool existed = hasShader(key);
+
 	mShaderInfoMap[key] = info;
 	auto shader = loadShader(info);
 	mShaderMap[key] = shader;
+
+	CI_LOG_I("ShaderManager: Set up shader '" + key + "'");
+	mDidUpdateShader.emit(key, shader);
+
 	return shader;
 }
 
@@ -41,11 +51,13 @@ ci::gl::GlslProgRef ShaderManager::getShader(const std::string & key) {
 	return it->second;
 }
 
-ci::gl::GlslProgRef ShaderManager::getShaderByAssetPath(const std::string & assetPath){
+ci::gl::GlslProgRef ShaderManager::getShaderByAssetPath(const std::string & assetPath, ShaderInfo::FormatCallback formatCallback){
 	setupShader(assetPath, ShaderInfo(
 		assetPath.empty() ? "" : assetPath + ".vert",
 		assetPath.empty() ? "" : assetPath + ".frag",
-		assetPath.empty() ? "" : assetPath + ".geom"
+		assetPath.empty() ? "" : assetPath + ".geom",
+		true,
+		formatCallback
 	));
 	return getShader(assetPath);
 }
@@ -62,6 +74,9 @@ ci::gl::GlslProgRef ShaderManager::loadShader(const ShaderInfo info) {
 		}
 		if (!info.geomPath.empty()) {
 			format.geometry(loadFile(info.geomPath));
+		}
+		if (info.formatCallback) {
+			info.formatCallback(format);
 		}
 	} catch (Exception e) {
 		CI_LOG_EXCEPTION("Could not load shader", e);
