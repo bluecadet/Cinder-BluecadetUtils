@@ -5,7 +5,6 @@
 	id="com.bluecadet.cinder.utils"
 	git="git@github.com:bluecadet/Cinder-BluecadetUtils.git"
 	author="Bluecadet"
-	summary=""
 	license="MIT"
 	summary="General utils for production apps to facilitate handling threads and assets among other things."
 	license="MIT"
