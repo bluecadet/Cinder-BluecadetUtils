@@ -4,7 +4,7 @@
 
 #include "cinder/Utilities.h"
 
-#include "ThreadedTaskQueue.h"
+#include "bluecadet/utils/ThreadedTaskQueue.h"
 
 using namespace ci;
 using namespace ci::app;

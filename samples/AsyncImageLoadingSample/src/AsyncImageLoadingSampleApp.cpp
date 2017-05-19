@@ -5,7 +5,7 @@
 #include "cinder/Log.h"
 #include "cinder/params/Params.h"
 
-#include "AsyncImageLoader.h"
+#include "bluecadet/utils/AsyncImageLoader.h"
 
 using namespace ci;
 using namespace ci::app;

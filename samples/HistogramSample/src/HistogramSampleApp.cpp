@@ -2,7 +2,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
-#include "Histogram.h"
+#include "bluecadet/utils/Histogram.h"
 
 using namespace ci;
 using namespace ci::app;

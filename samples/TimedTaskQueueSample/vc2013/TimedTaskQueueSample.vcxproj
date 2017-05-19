@@ -101,18 +101,22 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\bluecadet\utils\AsyncImageLoader.cpp" />
+    <ClCompile Include="..\..\..\src\bluecadet\utils\Histogram.cpp" />
+    <ClCompile Include="..\..\..\src\bluecadet\utils\ImageManager.cpp" />
+    <ClCompile Include="..\..\..\src\bluecadet\utils\ShaderManager.cpp" />
+    <ClCompile Include="..\..\..\src\bluecadet\utils\ThreadedTaskQueue.cpp" />
+    <ClCompile Include="..\..\..\src\bluecadet\utils\TimedTaskQueue.cpp" />
     <ClCompile Include="..\src\TimedTaskQueueSampleApp.cpp" />
-    <ClCompile Include="..\..\..\src\Histogram.cpp" />
-    <ClCompile Include="..\..\..\src\ImageManager.cpp" />
-    <ClCompile Include="..\..\..\src\ThreadedTaskQueue.cpp" />
-    <ClCompile Include="..\..\..\src\TimedTaskQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\bluecadet\utils\AsyncImageLoader.h" />
+    <ClInclude Include="..\..\..\src\bluecadet\utils\Histogram.h" />
+    <ClInclude Include="..\..\..\src\bluecadet\utils\ImageManager.h" />
+    <ClInclude Include="..\..\..\src\bluecadet\utils\ShaderManager.h" />
+    <ClInclude Include="..\..\..\src\bluecadet\utils\ThreadedTaskQueue.h" />
+    <ClInclude Include="..\..\..\src\bluecadet\utils\TimedTaskQueue.h" />
     <ClInclude Include="..\include\Resources.h" />
-    <ClInclude Include="..\..\..\src\Histogram.h" />
-    <ClInclude Include="..\..\..\src\ImageManager.h" />
-    <ClInclude Include="..\..\..\src\ThreadedTaskQueue.h" />
-    <ClInclude Include="..\..\..\src\TimedTaskQueue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

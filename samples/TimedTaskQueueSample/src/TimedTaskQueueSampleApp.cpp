@@ -2,7 +2,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
-#include "TimedTaskQueue.h"
+#include "bluecadet/utils/TimedTaskQueue.h"
 
 using namespace ci;
 using namespace ci::app;
