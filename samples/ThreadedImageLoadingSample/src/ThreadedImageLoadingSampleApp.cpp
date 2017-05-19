@@ -18,10 +18,13 @@ public:
 	void draw() override;
 
 	ThreadedImageLoader mLoader;
+	ThreadedTaskQueue mThreadedQueue;
 	params::InterfaceGlRef mParams;
 };
 
 void ThreadedImageLoadingSampleApp::setup() {
+	mThreadedQueue.setup(4);
+
 	mParams = params::InterfaceGl::create("Settings", ivec2(250, 150));
 	mParams->addButton("Load blue image", [=] {
 		mLoader.load(getAssetPath("bluecadet-blue.png").string(), [=](const string path, gl::TextureRef texture) {
@@ -54,6 +57,32 @@ void ThreadedImageLoadingSampleApp::setup() {
 		mLoader.cancel(getAssetPath("bluecadet-cadet.png").string());
 		mLoader.removeTexture(getAssetPath("bluecadet-cadet.png").string());
 	}, "key=c");
+	mParams->addButton("Threaded Load & Cancel", [=] {
+		for (int i = 0; i < 100; ++i) {
+			mThreadedQueue.addTask([=] {
+				mLoader.load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
+					if (texture) {
+						CI_LOG_D("Loaded cadet a " + to_string(i));
+					} else {
+						CI_LOG_D("Could not load cadet a " + to_string(i));
+					}
+				});
+			});
+		}
+		mThreadedQueue.addTask([=] {
+			mLoader.cancel(getAssetPath("bluecadet-cadet.png").string());
+		});
+		for (int i = 0; i < 100; ++i) {
+			mLoader.load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
+				if (texture) {
+					CI_LOG_D("Loaded cadet b " + to_string(i));
+				} else {
+					CI_LOG_D("Could not load cadet b " + to_string(i));
+				}
+			});
+		}
+		mLoader.cancel(getAssetPath("bluecadet-cadet.png").string()); // most 'a' requests should fail, most 'b' requests should succeed
+	});
 }
 
 void ThreadedImageLoadingSampleApp::draw() {

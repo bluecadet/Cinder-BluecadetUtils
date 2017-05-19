@@ -17,7 +17,9 @@ class ThreadedImageLoader {
 	
 public:
 	
-	ThreadedImageLoader(const unsigned int numThreads = 1, const double maxMainThreadBlockDuration = 0.05);
+	//! numThreads: Threads used for loading + decoding images
+	//! maxMainThreadBlockDuration: Max amount of time used per frame on the main thread to upload textures
+	ThreadedImageLoader(const unsigned int numThreads = 4, const double maxMainThreadBlockDuration = 0.05);
 	virtual ~ThreadedImageLoader();
 	
 	void load(const std::string path, Callback callback);
