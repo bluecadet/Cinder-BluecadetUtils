@@ -19,7 +19,6 @@ class ImageManager {
 
 public:
 
-	// @BB - let's discuss  
 	static ImageManagerRef getInstance() {
 		static ImageManagerRef instance = nullptr;
 		if (instance == nullptr) {
@@ -32,7 +31,12 @@ public:
 	~ImageManager();
 
 	void					loadAllImagesInDirectory(const std::string &directory);
+	void					loadAllImagesInDirectory(const std::string &directory, const ci::gl::Texture::Format format);
+	bool					hasTexture(const std::string &filename);
 	ci::gl::Texture2dRef	getTexture(const std::string &filename);
+
+	ci::gl::Texture::Format	getDefaultFormat() const { return mDefaultFormat; }
+	void					setDefaultFormat(const ci::gl::Texture::Format value) { mDefaultFormat = value; }
 
 private:
 

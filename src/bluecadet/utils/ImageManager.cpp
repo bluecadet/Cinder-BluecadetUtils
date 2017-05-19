@@ -31,7 +31,10 @@ ImageManager::~ImageManager() {
 }
 
 void ImageManager::loadAllImagesInDirectory(const std::string &directoryName) {
+	loadAllImagesInDirectory(directoryName, mDefaultFormat);
+}
 
+void ImageManager::loadAllImagesInDirectory(const std::string & directoryName, const ci::gl::Texture::Format format) {
 	fs::path directory(getAssetPath(directoryName));
 
 	if (!fs::exists(directory)) {
@@ -41,12 +44,12 @@ void ImageManager::loadAllImagesInDirectory(const std::string &directoryName) {
 
 	int numImagesLoaded = 0;
 	// Iterate over contents of the folder
-	for (fs::directory_iterator it(directory); it != fs::directory_iterator(); ++it){
+	for (fs::directory_iterator it(directory); it != fs::directory_iterator(); ++it) {
 		if (!is_directory(*it)) {
 			fs::path filePath = fs::path(*it);
 			std::string fileName = extractFilename(filePath.string());
 			std::string fileExtension = extractFileExtension(fileName);
-			
+
 			if (!fs::exists(filePath)) {
 				cout << "ImageManager: Image '" << filePath << "' does not exist in " << directoryName << " folder." << endl;
 				continue;
@@ -61,20 +64,23 @@ void ImageManager::loadAllImagesInDirectory(const std::string &directoryName) {
 			try {
 				auto img = loadImage(loadAsset(directoryName + "/" + fileName));
 				if (img) {
-					if (img->getWidth() > 3780 || img->getHeight() > 2880) {
+					/*if (img->getWidth() > 3780 || img->getHeight() > 2880) {
 						cout << "ImageManager: Warning: Image " + fileName + " is very large (" + to_string(img->getWidth()) + "," + to_string(img->getHeight()) + ")" << endl;
-					}
-					mTexturesMap[fileName] = gl::Texture2d::create(img, mDefaultFormat);
+					}*/
+					mTexturesMap[fileName] = gl::Texture2d::create(img, format);
 					numImagesLoaded++;
 				}
-			}
-			catch (Exception& e) {
+			} catch (Exception& e) {
 				cout << "ImageManager: Couldn't load image '" << fileName << "': " << e.what();
 			}
 		}
 	}
 
 	cout << "ImageManager: Loaded " << to_string(numImagesLoaded) << " images from '" << directory << "'" << endl;
+}
+
+bool ImageManager::hasTexture(const std::string & filename) {
+	return mTexturesMap.find(filename) != mTexturesMap.end();
 }
 
 std::string ImageManager::extractFilename(const std::string &filepath) {
@@ -89,10 +95,10 @@ std::string ImageManager::extractFileExtension(const std::string &filepath) {
 	return extension;
 }
 
-ci::gl::Texture2dRef ImageManager::getTexture(const std::string &fileName) {
-	auto& it = mTexturesMap.find(fileName);
+ci::gl::Texture2dRef ImageManager::getTexture(const std::string &filename) {
+	const auto & it = mTexturesMap.find(filename);
 	if (it == mTexturesMap.end()) {
-		cout << "ImageManager: Could not find image '" << fileName << "'. Check that it exists in folder." << endl;
+		cout << "ImageManager: Could not find image '" << filename << "'. Check that it exists in folder." << endl;
 		return nullptr;
 	}
 	return it->second;
