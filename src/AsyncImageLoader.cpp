@@ -1,5 +1,5 @@
 
-#include "ThreadedImageLoader.h"
+#include "AsyncImageLoader.h"
 
 #include "cinder/Log.h"
 #include "cinder/Filesystem.h"
@@ -11,20 +11,24 @@ using namespace std;
 
 namespace bluecadet {
 namespace utils {
+	
+	// Static properties
+	bool AsyncImageLoader::sIsInitialized = false;
+	std::mutex AsyncImageLoader::mInitializationMutex;
 
-	bool ThreadedImageLoader::sIsInitialized = false;
 
-	ThreadedImageLoader::ThreadedImageLoader(const unsigned int numThreads, const double maxMainThreadBlockDuration) :
+	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads, const double maxMainThreadBlockDuration) :
 		mMainThreadTasks(true, maxMainThreadBlockDuration)
 	{
 		mWorkerThreadedTasks.setup(numThreads);
 	}
 	
-	ThreadedImageLoader::~ThreadedImageLoader() {
+	AsyncImageLoader::~AsyncImageLoader() {
 		
 	}
+
 	
-	void ThreadedImageLoader::load(const std::string path, Callback callback) {
+	void AsyncImageLoader::load(const std::string path, Callback callback) {
 
 		// check texture cache
 		auto texIt = mTextureCache.find(path);
@@ -70,24 +74,24 @@ namespace utils {
 		});
 	}
 	
-	void ThreadedImageLoader::cancel(const std::string path) {
+	void AsyncImageLoader::cancel(const std::string path) {
 		// trigger pending callbacks immediately w/o waiting for load to finish
 		// this will remove the callbacks and cancel any pending requests
 		triggerCallbacks(path);
 	}
 
-	bool ThreadedImageLoader::isLoading(const std::string path) {
+	bool AsyncImageLoader::isLoading(const std::string path) {
 		lock_guard<mutex> lock(mCallbackMutex);
 		auto cbIt = mCallbacks.find(path);
 		return cbIt != mCallbacks.end();
 	}
 	
-	bool ThreadedImageLoader::hasTexture(const std::string path) {
+	bool AsyncImageLoader::hasTexture(const std::string path) {
 		lock_guard<mutex> lock(mTextureMutex);
 		return mTextureCache.find(path) != mTextureCache.end();
 	}
 
-	void ThreadedImageLoader::removeTexture(const std::string path) {
+	void AsyncImageLoader::removeTexture(const std::string path) {
 		// remove texture if it was already loaded
 		{
 			lock_guard<mutex> lock(mTextureMutex);
@@ -101,7 +105,7 @@ namespace utils {
 		triggerCallbacks(path);
 	}
 	
-	const ci::gl::TextureRef ThreadedImageLoader::getTexture(const std::string path) {
+	const ci::gl::TextureRef AsyncImageLoader::getTexture(const std::string path) {
 		lock_guard<mutex> lock(mTextureMutex);
 		auto it = mTextureCache.find(path);
 		if (it == mTextureCache.end()) {
@@ -110,7 +114,7 @@ namespace utils {
 		return it->second;
 	}
 	
-	void ThreadedImageLoader::triggerCallbacks(const std::string path) {
+	void AsyncImageLoader::triggerCallbacks(const std::string path) {
 		std::vector<Callback> callbacks;
 		
 		{
@@ -145,7 +149,7 @@ namespace utils {
 		}
 	}
 	
-	void ThreadedImageLoader::initializeLoader() {
+	void AsyncImageLoader::initializeLoader() {
 		lock_guard<mutex> lock(mInitializationMutex);
 
 		if (sIsInitialized) {
@@ -163,7 +167,7 @@ namespace utils {
 		});
 	}
 
-	ci::ImageSourceRef ThreadedImageLoader::loadFile(const std::string path) {
+	ci::ImageSourceRef AsyncImageLoader::loadFile(const std::string path) {
 		try {
 			if (ci::fs::exists(path)) {
 				auto data = ci::loadImage(path);
@@ -178,13 +182,13 @@ namespace utils {
 		}
 	}
 	
-	void ThreadedImageLoader::createSurface(const std::string path, const ci::ImageSourceRef source) {
+	void AsyncImageLoader::createSurface(const std::string path, const ci::ImageSourceRef source) {
 		lock_guard<mutex> lock(mSurfaceMutex);
 		// create surface and store on cpu memory
 		mSurfaceCache[path] = Surface::create(source);
 	}
 	
-	void ThreadedImageLoader::createTexture(const std::string path) {
+	void AsyncImageLoader::createTexture(const std::string path) {
 		ci::SurfaceRef surface = nullptr;
 		
 		{

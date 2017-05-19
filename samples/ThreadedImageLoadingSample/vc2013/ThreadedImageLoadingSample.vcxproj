@@ -190,7 +190,7 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\ThreadedImageLoader.cpp" />
+    <ClCompile Include="..\..\..\src\AsyncImageLoader.cpp" />
     <ClCompile Include="..\src\ThreadedImageLoadingSampleApp.cpp" />
     <ClCompile Include="..\..\..\src\Histogram.cpp" />
     <ClCompile Include="..\..\..\src\ImageManager.cpp" />
@@ -198,9 +198,8 @@
     <ClCompile Include="..\..\..\src\TimedTaskQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\ThreadedImageLoader.h" />
+    <ClInclude Include="..\..\..\src\AsyncImageLoader.h" />
     <ClInclude Include="..\include\Resources.h" />
-    <ClInclude Include="..\..\..\src\Animation.h" />
     <ClInclude Include="..\..\..\src\Histogram.h" />
     <ClInclude Include="..\..\..\src\ImageManager.h" />
     <ClInclude Include="..\..\..\src\ThreadedTaskQueue.h" />

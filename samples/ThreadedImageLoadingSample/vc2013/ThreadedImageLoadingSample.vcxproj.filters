@@ -44,9 +44,6 @@
     <ClCompile Include="..\..\..\src\TimedTaskQueue.cpp">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\..\src\Animation.h">
-      <Filter>Blocks\BluecadetUtils\src</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\Histogram.h">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClInclude>
@@ -59,7 +56,7 @@
     <ClInclude Include="..\..\..\src\TimedTaskQueue.h">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\..\src\ThreadedImageLoader.cpp">
+    <ClCompile Include="..\..\..\src\AsyncImageLoader.cpp">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -67,7 +64,7 @@
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\ThreadedImageLoader.h">
+    <ClInclude Include="..\..\..\src\AsyncImageLoader.h">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,7 +5,7 @@
 #include "cinder/Log.h"
 #include "cinder/params/Params.h"
 
-#include "ThreadedImageLoader.h"
+#include "AsyncImageLoader.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -17,7 +17,7 @@ public:
 	void setup() override;
 	void draw() override;
 
-	ThreadedImageLoader mLoader;
+	AsyncImageLoader mLoader;
 	ThreadedTaskQueue mThreadedQueue;
 	params::InterfaceGlRef mParams;
 };
