@@ -16,8 +16,8 @@
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		00B9955A1B128DF400A5C623 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995581B128DF400A5C623 /* IOKit.framework */; };
 		00B9955B1B128DF400A5C623 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995591B128DF400A5C623 /* IOSurface.framework */; };
-		22E347A22555488681914A47 /* ThreadedImageLoadingSampleApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB794CEAFF40BF9C41171F /* ThreadedImageLoadingSampleApp.cpp */; };
-		3592E7831E26FFE20049B06B /* ThreadedImageLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3592E7811E26FFE20049B06B /* ThreadedImageLoader.cpp */; };
+		22E347A22555488681914A47 /* AsyncImageLoadingSampleAppp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB794CEAFF40BF9C41171F /* AsyncImageLoadingSampleAppp.cpp */; };
+		3592E7831E26FFE20049B06B /* AsyncImageLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3592E7811E26FFE20049B06B /* AsyncImageLoader.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		743858D6A25C4790BFF938FA /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 30EE1C972C3749EF868969CE /* CinderApp.icns */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -44,17 +44,17 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		30EE1C972C3749EF868969CE /* CinderApp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = CinderApp.icns; path = ../resources/CinderApp.icns; sourceTree = "<group>"; };
 		35825F80B977443E97C6ACA9 /* ImageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ImageManager.h; path = ../../../src/ImageManager.h; sourceTree = "<group>"; };
-		3592E7811E26FFE20049B06B /* ThreadedImageLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadedImageLoader.cpp; path = ../src/ThreadedImageLoader.cpp; sourceTree = "<group>"; };
-		3592E7821E26FFE20049B06B /* ThreadedImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadedImageLoader.h; path = ../src/ThreadedImageLoader.h; sourceTree = "<group>"; };
+		3592E7811E26FFE20049B06B /* AsyncImageLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AsyncImageLoader.cpp; path = ../src/AsyncImageLoader.cpp; sourceTree = "<group>"; };
+		3592E7821E26FFE20049B06B /* AsyncImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncImageLoader.h; path = ../src/AsyncImageLoader.h; sourceTree = "<group>"; };
 		4FF80BFB425948968940A4FF /* ThreadedTaskQueue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = ThreadedTaskQueue.cpp; path = ../../../src/ThreadedTaskQueue.cpp; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5F77E3E01CC04629B3F42D94 /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
-		7BFB794CEAFF40BF9C41171F /* ThreadedImageLoadingSampleApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = ThreadedImageLoadingSampleApp.cpp; path = ../src/ThreadedImageLoadingSampleApp.cpp; sourceTree = "<group>"; };
+		7BFB794CEAFF40BF9C41171F /* AsyncImageLoadingSampleAppp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = AsyncImageLoadingSampleAppp.cpp; path = ../src/AsyncImageLoadingSampleAppp.cpp; sourceTree = "<group>"; };
 		7DC4D6D98B5343C281EC8A01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* ThreadedImageLoadingSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreadedImageLoadingSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* AsyncImageLoadingSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncImageLoadingSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4816C2E5AE1439CA6DBE5FD /* Histogram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = Histogram.cpp; path = ../../../src/Histogram.cpp; sourceTree = "<group>"; };
 		C8F1A056750A4B5CAC761EDB /* ThreadedTaskQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ThreadedTaskQueue.h; path = ../../../src/ThreadedTaskQueue.h; sourceTree = "<group>"; };
-		DE4EBF4B0F3A4CFF94544E39 /* ThreadedImageLoadingSample_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = ThreadedImageLoadingSample_Prefix.pch; sourceTree = "<group>"; };
+		DE4EBF4B0F3A4CFF94544E39 /* AsyncImageLoadingSampleApp_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = AsyncImageLoadingSampleApp_Prefix.pch; sourceTree = "<group>"; };
 		E5A47658F0574C3B96AE8073 /* TimedTaskQueue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = TimedTaskQueue.cpp; path = ../../../src/TimedTaskQueue.cpp; sourceTree = "<group>"; };
 		F7BD784C87964FD3A2A2C0DD /* ImageManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = ImageManager.cpp; path = ../../../src/ImageManager.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -92,9 +92,9 @@
 		080E96DDFE201D6D7F000001 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				7BFB794CEAFF40BF9C41171F /* ThreadedImageLoadingSampleApp.cpp */,
-				3592E7811E26FFE20049B06B /* ThreadedImageLoader.cpp */,
-				3592E7821E26FFE20049B06B /* ThreadedImageLoader.h */,
+				7BFB794CEAFF40BF9C41171F /* AsyncImageLoadingSampleAppp.cpp */,
+				3592E7811E26FFE20049B06B /* AsyncImageLoader.cpp */,
+				3592E7821E26FFE20049B06B /* AsyncImageLoader.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -129,7 +129,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* ThreadedImageLoadingSample.app */,
+				8D1107320486CEB800E47090 /* AsyncImageLoadingSampleApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -149,7 +149,7 @@
 			name = src;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* ThreadedImageLoadingSample */ = {
+		29B97314FDCFA39411CA2CEA /* AsyncImageLoadingSampleApp */ = {
 			isa = PBXGroup;
 			children = (
 				01B97315FEAEA392516A2CEA /* Blocks */,
@@ -159,14 +159,14 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
-			name = ThreadedImageLoadingSample;
+			name = AsyncImageLoadingSampleApp;
 			sourceTree = "<group>";
 		};
 		29B97315FDCFA39411CA2CEA /* Headers */ = {
 			isa = PBXGroup;
 			children = (
 				5F77E3E01CC04629B3F42D94 /* Resources.h */,
-				DE4EBF4B0F3A4CFF94544E39 /* ThreadedImageLoadingSample_Prefix.pch */,
+				DE4EBF4B0F3A4CFF94544E39 /* AsyncImageLoadingSampleApp_Prefix.pch */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -200,9 +200,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D1107260486CEB800E47090 /* ThreadedImageLoadingSample */ = {
+		8D1107260486CEB800E47090 /* AsyncImageLoadingSampleApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "ThreadedImageLoadingSample" */;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "AsyncImageLoadingSampleApp" */;
 			buildPhases = (
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
@@ -212,10 +212,10 @@
 			);
 			dependencies = (
 			);
-			name = ThreadedImageLoadingSample;
+			name = AsyncImageLoadingSampleApp;
 			productInstallPath = "$(HOME)/Applications";
-			productName = ThreadedImageLoadingSample;
-			productReference = 8D1107320486CEB800E47090 /* ThreadedImageLoadingSample.app */;
+			productName = AsyncImageLoadingSampleApp;
+			productReference = 8D1107320486CEB800E47090 /* AsyncImageLoadingSampleApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -225,7 +225,7 @@
 			isa = PBXProject;
 			attributes = {
 			};
-			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "ThreadedImageLoadingSample" */;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "AsyncImageLoadingSampleApp" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -235,11 +235,11 @@
 				French,
 				German,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* ThreadedImageLoadingSample */;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* AsyncImageLoadingSampleApp */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8D1107260486CEB800E47090 /* ThreadedImageLoadingSample */,
+				8D1107260486CEB800E47090 /* AsyncImageLoadingSampleApp */,
 			);
 		};
 /* End PBXProject section */
@@ -260,12 +260,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22E347A22555488681914A47 /* ThreadedImageLoadingSampleApp.cpp in Sources */,
+				22E347A22555488681914A47 /* AsyncImageLoadingSampleAppp.cpp in Sources */,
 				EE3011197B1245E8888E2F84 /* Histogram.cpp in Sources */,
 				F0112FC4A84C48309937CEF1 /* ImageManager.cpp in Sources */,
 				B83C771520134721BBC04F1F /* ThreadedTaskQueue.cpp in Sources */,
 				CF6E7DD557CB4F078C22CEC4 /* TimedTaskQueue.cpp in Sources */,
-				3592E7831E26FFE20049B06B /* ThreadedImageLoader.cpp in Sources */,
+				3592E7831E26FFE20049B06B /* AsyncImageLoader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,7 +282,7 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ThreadedImageLoadingSample_Prefix.pch;
+				GCC_PREFIX_HEADER = AsyncImageLoadingSampleApp_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -292,7 +292,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder_d.a\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = ThreadedImageLoadingSample;
+				PRODUCT_NAME = AsyncImageLoadingSampleApp;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
 			};
@@ -309,7 +309,7 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ThreadedImageLoadingSample_Prefix.pch;
+				GCC_PREFIX_HEADER = AsyncImageLoadingSampleApp_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NDEBUG=1",
 					"$(inherited)",
@@ -319,7 +319,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder.a\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = ThreadedImageLoadingSample;
+				PRODUCT_NAME = AsyncImageLoadingSampleApp;
 				STRIP_INSTALLED_PRODUCT = YES;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
@@ -363,7 +363,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "ThreadedImageLoadingSample" */ = {
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "AsyncImageLoadingSampleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
@@ -372,7 +372,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "ThreadedImageLoadingSample" */ = {
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "AsyncImageLoadingSampleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,

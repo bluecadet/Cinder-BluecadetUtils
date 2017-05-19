@@ -12,7 +12,7 @@ using namespace ci::app;
 using namespace std;
 using namespace bluecadet::utils;
 
-class ThreadedImageLoadingSampleApp : public App {
+class AsyncImageLoadingSampleApp : public App {
 public:
 	void setup() override;
 	void draw() override;
@@ -22,7 +22,7 @@ public:
 	params::InterfaceGlRef mParams;
 };
 
-void ThreadedImageLoadingSampleApp::setup() {
+void AsyncImageLoadingSampleApp::setup() {
 	mThreadedQueue.setup(4);
 
 	mParams = params::InterfaceGl::create("Settings", ivec2(250, 150));
@@ -85,7 +85,7 @@ void ThreadedImageLoadingSampleApp::setup() {
 	});
 }
 
-void ThreadedImageLoadingSampleApp::draw() {
+void AsyncImageLoadingSampleApp::draw() {
 	gl::clear(Color(0, 0, 0));
 	gl::enableAlphaBlending();
 
@@ -101,4 +101,4 @@ void ThreadedImageLoadingSampleApp::draw() {
 	mParams->draw();
 }
 
-CINDER_APP(ThreadedImageLoadingSampleApp, RendererGl)
+CINDER_APP(AsyncImageLoadingSampleApp, RendererGl)

@@ -1,0 +1,76 @@
+﻿<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Blocks">
+      <UniqueIdentifier>{D983981C-9FED-4162-B02D-146B7F6F4BDA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\BluecadetUtils">
+      <UniqueIdentifier>{C825A01C-391A-43F4-B20D-0B5925A4F6CB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\BluecadetUtils\src">
+      <UniqueIdentifier>{B1218CA4-464F-47F1-B564-581AE236E2F7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\AsyncImageLoadingSampleAppp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\Histogram.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ImageManager.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ThreadedTaskQueue.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\TimedTaskQueue.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\Histogram.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\ImageManager.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\ThreadedTaskQueue.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\TimedTaskQueue.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\AsyncImageLoader.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AsyncImageLoadingSampleApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\AsyncImageLoader.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
