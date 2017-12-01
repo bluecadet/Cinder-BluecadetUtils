@@ -29,4 +29,4 @@ The timed task queue runs on the current thread and automatically runs tasks tha
 
 Sample App: [samples/TimedTaskQueueSample/src/TimedTaskQueueSampleApp.cpp](samples/TimedTaskQueueSample/src/TimedTaskQueueSampleApp.cpp)
 
-Version 1.1.0
+Version 1.2.0
