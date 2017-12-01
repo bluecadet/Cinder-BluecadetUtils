@@ -2,6 +2,9 @@
 
 #include "cinder/Filesystem.h"
 #include "cinder/imageIo.h"
+#include "cinder/Log.h"
+
+#include "FileUtils.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -10,98 +13,75 @@ using namespace std;
 namespace bluecadet {
 namespace utils {
 
-ImageManager::ImageManager() {
-	mValidExtensions.insert("png");
-	mValidExtensions.insert("PNG");
-	mValidExtensions.insert("jpg");
-	mValidExtensions.insert("JPG");
-	mValidExtensions.insert("jpeg");
-	mValidExtensions.insert("JPEG");
+ci::gl::Texture::Format ImageManager::sDefaultFormat;
+bool ImageManager::sDefaultFormatInitialized = false;
 
-	mDefaultFormat = gl::Texture::Format();
-	mDefaultFormat.setMaxAnisotropy(gl::Texture2d::getMaxAnisotropyMax());
-	mDefaultFormat.enableMipmapping(true);
-	mDefaultFormat.setMaxMipmapLevel(2);
-	mDefaultFormat.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-	mDefaultFormat.setMagFilter(GL_LINEAR);
-	mDefaultFormat.loadTopDown(true);
+ImageManager::ImageManager() {
 }
 
 ImageManager::~ImageManager() {
 }
 
-void ImageManager::loadAllImagesInDirectory(const std::string &directoryName) {
-	loadAllImagesInDirectory(directoryName, mDefaultFormat);
+void ImageManager::load(const ci::fs::path & absFilePath, const ci::gl::Texture::Format & format) {
+	const std::string & key = FileUtils::getFilename(absFilePath);
+	load(absFilePath, key, format);
 }
 
-void ImageManager::loadAllImagesInDirectory(const std::string & directoryName, const ci::gl::Texture::Format format) {
-	fs::path directory(getAssetPath(directoryName));
+void ImageManager::load(const ci::fs::path & absFilePath, const std::string & key, const ci::gl::Texture::Format & format) {
+	try {
+		if (const auto img = loadImage(absFilePath)) {
+			mTexturesMap[key] = gl::Texture2d::create(img, format);
 
-	if (!fs::exists(directory)) {
-		cout << "ImageManager: Image directory '" << directory << "' does not exist." << endl;
-		return;
-	}
-
-	int numImagesLoaded = 0;
-	// Iterate over contents of the folder
-	for (fs::directory_iterator it(directory); it != fs::directory_iterator(); ++it) {
-		if (!is_directory(*it)) {
-			fs::path filePath = fs::path(*it);
-			std::string fileName = extractFilename(filePath.string());
-			std::string fileExtension = extractFileExtension(fileName);
-
-			if (!fs::exists(filePath)) {
-				cout << "ImageManager: Image '" << filePath << "' does not exist in " << directoryName << " folder." << endl;
-				continue;
-			}
-
-			if (mValidExtensions.find(fileExtension) == mValidExtensions.end()) {
-				cout << "ImageManager: Skipping file '" << fileName << "' because its extension '" << fileExtension << "' is not supported." << endl;
-				continue;
-			}
-
-			// Load the image
-			try {
-				auto img = loadImage(loadAsset(directoryName + "/" + fileName));
-				if (img) {
-					/*if (img->getWidth() > 3780 || img->getHeight() > 2880) {
-						cout << "ImageManager: Warning: Image " + fileName + " is very large (" + to_string(img->getWidth()) + "," + to_string(img->getHeight()) + ")" << endl;
-					}*/
-					mTexturesMap[fileName] = gl::Texture2d::create(img, format);
-					numImagesLoaded++;
-				}
-			} catch (Exception& e) {
-				cout << "ImageManager: Couldn't load image '" << fileName << "': " << e.what();
-			}
+		} else {
+			throw ci::Exception("Could not load image from '" + absFilePath.string() + "'");
 		}
+	} catch (Exception e) {
+		CI_LOG_EXCEPTION("Could not load image from '" + absFilePath.string() + "'", e);
 	}
-
-	cout << "ImageManager: Loaded " << to_string(numImagesLoaded) << " images from '" << directory << "'" << endl;
 }
 
-bool ImageManager::hasTexture(const std::string & filename) {
-	return mTexturesMap.find(filename) != mTexturesMap.end();
+void ImageManager::loadAllFromDir(const ci::fs::path absDirPath, const std::set<std::string> extensions, const bool recursive, const bool fileNameAsKey, const ci::gl::Texture::Format & format) {
+	int numImagesLoaded = 0;
+
+	FileUtils::find(absDirPath, [&](const ci::fs::path & path) {
+		string key = fileNameAsKey ? FileUtils::getFilename(path) : path.string();
+		load(path, key, format);
+		numImagesLoaded++;
+	}, extensions, recursive);
+
+	CI_LOG_I("Loaded " + to_string(numImagesLoaded) + " images from " + absDirPath.string());
 }
 
-std::string ImageManager::extractFilename(const std::string &filepath) {
-	std::size_t found = filepath.find_last_of("/\\");
-	string filename = filepath.substr(found + 1);
-	return filename;
+bool ImageManager::hasTexture(const std::string & key) const {
+	return mTexturesMap.find(key) != mTexturesMap.end();
 }
 
-std::string ImageManager::extractFileExtension(const std::string &filepath) {
-	std::size_t found = filepath.find_last_of(".");
-	string extension = filepath.substr(found + 1);
-	return extension;
-}
-
-ci::gl::Texture2dRef ImageManager::getTexture(const std::string &filename) {
-	const auto & it = mTexturesMap.find(filename);
+ci::gl::Texture2dRef ImageManager::getTexture(const std::string & key) const {
+	const auto & it = mTexturesMap.find(key);
 	if (it == mTexturesMap.end()) {
-		cout << "ImageManager: Could not find image '" << filename << "'. Check that it exists in folder." << endl;
+		CI_LOG_W("Could not find image with key '" << key << "'.");
 		return nullptr;
 	}
 	return it->second;
+}
+
+const ci::gl::Texture::Format & ImageManager::getDefaultFormat() {
+	if (!sDefaultFormatInitialized) {
+		sDefaultFormatInitialized = true;
+
+		sDefaultFormat = gl::Texture::Format();
+		sDefaultFormat.setMaxAnisotropy(gl::Texture2d::getMaxAnisotropyMax());
+		sDefaultFormat.enableMipmapping(true);
+		sDefaultFormat.setMaxMipmapLevel(2);
+		sDefaultFormat.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+		sDefaultFormat.setMagFilter(GL_LINEAR);
+	}
+	return sDefaultFormat;
+}
+
+void ImageManager::setDefaultFormat(ci::gl::Texture::Format format) {
+	sDefaultFormat = format;
+	sDefaultFormatInitialized = true;
 }
 
 }
