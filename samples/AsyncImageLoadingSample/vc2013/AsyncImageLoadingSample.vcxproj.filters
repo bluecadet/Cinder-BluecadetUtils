@@ -47,6 +47,9 @@
     <ClInclude Include="..\..\..\src\bluecadet\utils\TimedTaskQueue.h">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\bluecadet\utils\FileUtils.h">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -75,6 +78,9 @@
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\bluecadet\utils\TimedTaskQueue.cpp">
+      <Filter>Blocks\BluecadetUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bluecadet\utils\FileUtils.cpp">
       <Filter>Blocks\BluecadetUtils\src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,6 +4,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/ConcurrentCircularBuffer.h"
 
 #include "ThreadedTaskQueue.h"
 #include "TimedTaskQueue.h"
@@ -18,10 +19,10 @@ class AsyncImageLoader {
 public:
 
 	//! Optional shared instance. This class can still be independently instantiated.
-	static AsyncImageLoaderRef getSharedInstance() {
+	static AsyncImageLoaderRef getInstance() {
 		static AsyncImageLoaderRef instance = nullptr;
 		if (!instance) {
-			instance = AsyncImageLoaderRef(new AsyncImageLoader());
+			instance = std::make_shared<AsyncImageLoader>();
 		}
 		return instance;
 	};
@@ -38,6 +39,8 @@ public:
 	void cancel(const std::string path);
 	bool isLoading(const std::string path);
 	
+	void cancelAll(const bool removeData = true); // cancels any pending loads and removes existing surfaces and textures
+
 	bool hasTexture(const std::string path);
 	void removeTexture(const std::string path); // removes texture if it exists and cancels pending requests if it has any
 	const ci::gl::TextureRef getTexture(const std::string path);
@@ -47,7 +50,9 @@ protected:
 	void createSurface(const std::string path, const ci::ImageSourceRef source); // on worker thread
 	
 	void createTexture(const std::string path); // on main thread
-	void triggerCallbacks(const std::string path); // on main thread
+	void triggerCallbacks(const std::string path, ci::gl::TextureRef texture = nullptr); // on main thread
+
+	inline ci::gl::ContextRef getContext(); // get a background context. thread safe and blocking
 	
 	static void initializeLoader(); // makes sure that Cinder's internal static factories are initialized once on the main thread
 	static bool sIsInitialized; // need to initialize Cinder image factory on main thread 
@@ -63,6 +68,8 @@ protected:
 	
 	ThreadedTaskQueue mWorkerThreadedTasks;
 	TimedTaskQueue mMainThreadTasks;
+
+	ci::ConcurrentCircularBuffer<ci::gl::ContextRef> mBackgroundContexts;
 	
 };
 
