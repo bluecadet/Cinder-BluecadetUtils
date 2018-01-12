@@ -28,6 +28,7 @@ public:
 };
 
 void AsyncImageLoadingSampleApp::setup() {
+	setFpsSampleInterval(0.1);
 	mThreadedQueue.setup(4);
 
 	mParams = params::InterfaceGl::create("Settings", ivec2(250, 150));
@@ -92,27 +93,26 @@ void AsyncImageLoadingSampleApp::setup() {
 		mNumTexturesToLoad = 0;
 		mNumTexturesLoaded = 0;
 
-		FileUtils::find(getAssetPath(""), [=] (const ci::fs::path & path) {
+		FileUtils::find(getAssetPath("thf_large"), [=] (const ci::fs::path & path) {
 			mNumTexturesToLoad++;
 
 			AsyncImageLoader::getInstance()->load(path.string(), [=] (const string path, gl::TextureRef texture) {
 				if (texture) {
 					CI_LOG_D("Loaded image " + path);
 					mNumTexturesLoaded++;
-					mTextures.push_back(texture);
+					//mTextures.push_back(texture);
 
 				} else {
 					CI_LOG_D("Could not load image " + path);
 				}
 			});
 		});
-	});
-	mParams->addButton("Cancel All", [=] { AsyncImageLoader::getInstance()->cancelAll(); mTextures.clear(); mNumTexturesLoaded = 0; mNumTexturesToLoad = 0; });
+	}, "key=l");
+	mParams->addButton("Cancel All", [=] { AsyncImageLoader::getInstance()->cancelAll(); mTextures.clear(); mNumTexturesLoaded = 0; mNumTexturesToLoad = 0; }, "key=c");
 }
 
 void AsyncImageLoadingSampleApp::draw() {
-	gl::context()->makeCurrent();
-
+	gl::enableVerticalSync(false);
 	gl::clear(Color(0, 0, 0));
 	gl::enableAlphaBlending();
 
@@ -131,7 +131,7 @@ void AsyncImageLoadingSampleApp::draw() {
 	vec2 cell = vec2(0, 0);
 	vec2 cellSize = vec2(getWindowSize()) / numCells;
 
-	for (auto tex : mTextures) {
+	/*for (auto tex : mTextures) {
 		vec2 pos = cell * cellSize;
 		Rectf rect(pos, pos + cellSize);
 		gl::draw(tex, rect);
@@ -140,15 +140,21 @@ void AsyncImageLoadingSampleApp::draw() {
 			cell.x = 0;
 			cell.y += 1;
 		}
-	}
+	}*/
 	
+	vec2 size(200);
+	vec2 pos((sinf(getElapsedSeconds()) * 0.5f + 0.5f) * (vec2(getWindowSize()) - size));
+	gl::drawSolidRect(Rectf(pos, pos + size));
 
 	static Font font("Arial", 40);
-	static Color color = Color::white();
+	static Color color = Color(0, 1, 1);
 	gl::drawString("FPS: " + to_string(getAverageFps()), vec2(0, getWindowHeight() - 20 - 2.0f * font.getSize()), color, font);
 	gl::drawString("Loaded  " + to_string(mNumTexturesLoaded) + "/" + to_string(mNumTexturesToLoad), vec2(0, getWindowHeight() - 20 - font.getSize()), color, font);
 
 	mParams->draw();
 }
 
-CINDER_APP(AsyncImageLoadingSampleApp, RendererGl)
+CINDER_APP(AsyncImageLoadingSampleApp, RendererGl, [=](ci::app::App::Settings * settings) {
+	settings->setWindowSize(ivec2(1280, 720));
+	settings->disableFrameRate();
+})

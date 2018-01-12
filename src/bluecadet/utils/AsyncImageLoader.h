@@ -26,13 +26,19 @@ public:
 		}
 		return instance;
 	};
+
+	struct Request {
+		std::string path = "";
+		ci::gl::TextureRef texture = nullptr;
+
+		Request(const std::string & path, const ci::gl::TextureRef texture) : path(path), texture(texture) {}
+	};
 	
 	// Callback type for load requests. Resulting texture will be nullptr if request failed or canceled
 	typedef std::function<void(const std::string path, ci::gl::TextureRef textureOrNull)> Callback;
 	
 	//! numThreads: Threads used for loading + decoding images
-	//! maxMainThreadBlockDuration: Max amount of time used per frame on the main thread to upload textures
-	AsyncImageLoader(const unsigned int numThreads = 4, const double maxMainThreadBlockDuration = 0.05);
+	AsyncImageLoader(const unsigned int numThreads = 4);
 	virtual ~AsyncImageLoader();
 	
 	void load(const std::string path, Callback callback);
@@ -46,30 +52,29 @@ public:
 	const ci::gl::TextureRef getTexture(const std::string path);
 	
 protected:
-	ci::ImageSourceRef loadFile(const std::string path); // on worker thread
-	void createSurface(const std::string path, const ci::ImageSourceRef source); // on worker thread
-	
-	void createTexture(const std::string path); // on main thread
+	void loadImages(ci::gl::ContextRef context); // on worker thread
+	void transferTexturesToMain(); // on main thread
 	void triggerCallbacks(const std::string path, ci::gl::TextureRef texture = nullptr); // on main thread
 
-	inline ci::gl::ContextRef getContext(); // get a background context. thread safe and blocking
-	
 	static void initializeLoader(); // makes sure that Cinder's internal static factories are initialized once on the main thread
 	static bool sIsInitialized; // need to initialize Cinder image factory on main thread 
 	static std::mutex mInitializationMutex;
 
 	std::map<std::string, std::vector<Callback>> mCallbacks;
 	std::map<std::string, ci::gl::TextureRef> mTextureCache;
-	std::map<std::string, ci::SurfaceRef> mSurfaceCache;
-	
-	std::mutex mCallbackMutex;
-	std::mutex mSurfaceMutex;
-	std::mutex mTextureMutex;
-	
-	ThreadedTaskQueue mWorkerThreadedTasks;
-	TimedTaskQueue mMainThreadTasks;
+	std::set<ci::gl::ContextRef> mBackgroundContexts;
+	ci::ConcurrentCircularBuffer<Request> mTextureBuffer;
 
-	ci::ConcurrentCircularBuffer<ci::gl::ContextRef> mBackgroundContexts;
+	std::mutex mCallbackMutex;
+	std::mutex mTextureMutex;
+	std::mutex mRequestMutex;
+
+	std::condition_variable mRequestLock;
+	std::deque<std::string> mRequests;
+
+	std::set<std::shared_ptr<std::thread>> mThreads;
+	std::atomic<bool> mWasCanceled = false;
+	ci::signals::ConnectionList mSignalConnections;
 	
 };
 

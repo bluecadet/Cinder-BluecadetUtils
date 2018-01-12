@@ -18,21 +18,95 @@ namespace utils {
 	std::mutex AsyncImageLoader::mInitializationMutex;
 
 
-	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads, const double maxMainThreadBlockDuration) :
-		mMainThreadTasks(true, maxMainThreadBlockDuration),
-		mBackgroundContexts(numThreads * 2)
+	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads) :
+		mTextureBuffer(numThreads * 2)
 	{
-		for (unsigned int i = 0; i < mBackgroundContexts.getCapacity(); ++i) {
-			gl::ContextRef context = gl::Context::create(gl::context());
-			mBackgroundContexts.pushFront(context);
+		for (unsigned int i = 0; i < numThreads; ++i) {
+			auto context = gl::Context::create(gl::context());
+			auto thread = make_shared<std::thread>(bind(&AsyncImageLoader::loadImages, this, context));
+			mThreads.insert(thread);
+			mBackgroundContexts.insert(context);
 		}
 
-		mWorkerThreadedTasks.setup(numThreads);
+		mSignalConnections += App::get()->getSignalUpdate().connect(bind(&AsyncImageLoader::transferTexturesToMain, this));
 	}
 	
 	AsyncImageLoader::~AsyncImageLoader() {
-		mBackgroundContexts.cancel();
-		mWorkerThreadedTasks.destroy();
+		mWasCanceled = true;
+		mRequestLock.notify_all();
+		for (auto thread : mThreads) {
+			thread->join();
+		}
+		mTextureBuffer.cancel();
+	}
+
+	void AsyncImageLoader::loadImages(ci::gl::ContextRef context) {
+		ci::ThreadSetup threadSetup;
+
+		context->makeCurrent();
+		initializeLoader();
+
+		while (!mWasCanceled) {
+			std::string path;
+
+			{
+				// wait for new requests
+				unique_lock<mutex> lock(mRequestMutex);
+				while (!mWasCanceled && mRequests.empty()) {
+					mRequestLock.wait(lock);
+				}
+
+				if (mWasCanceled) return;
+
+				path = mRequests.front();
+				mRequests.pop_front();
+			}
+
+			if (!path.empty()) {
+				try {
+
+					auto data = loadImage(path);
+
+					if (!data) {
+						// Can't load image
+						cancel(path);
+						continue;
+					}
+
+					if (!isLoading(path)) continue; // abort if request has been cancelled
+					if (mWasCanceled) return;
+
+					// create cpu mem surface
+					ci::Surface surface(data);
+
+					// create texture and store data on gpu memory
+					const auto texture = gl::Texture::create(surface);
+
+					// create fence after all gpu commands
+					auto fence = gl::Sync::create();
+
+					// waits until fence has been executed
+					fence->clientWaitSync();
+
+					if (!isLoading(path)) continue; // abort if request has been cancelled
+					if (mWasCanceled) return;
+
+					Request request(path, texture);
+					mTextureBuffer.pushFront(request);
+
+				} catch (ci::Exception e) {
+					CI_LOG_EXCEPTION("Could not load image at '" + path + "'.", e);
+				}
+			}
+		}
+	}
+
+	void AsyncImageLoader::transferTexturesToMain() {
+		Request request("", nullptr);
+		while (mTextureBuffer.tryPopBack(&request)) {
+			mTextureCache[request.path] = request.texture;
+			triggerCallbacks(request.path, request.texture);
+		}
 	}
 
 	
@@ -55,71 +129,11 @@ namespace utils {
 		
 		// load file and add callback
 		mCallbacks[path].push_back(callback);
-		
-		mWorkerThreadedTasks.addTask([=] () {
-			// configure for multithreading
-			ci::ThreadSetup threadSetup;
-
-			initializeLoader();
-
-			if (!isLoading(path)) return; // abort if request has been cancelled
-			
-			auto data = loadFile(path);
-
-			if (!data) {
-				// Can't load image
-				cancel(path);
-				return;
-			}
-
-			if (!isLoading(path)) return; // abort if request has been cancelled
-
-			// create cpu mem surface
-			ci::Surface surface(data);
-			gl::ContextRef context = nullptr;
-			mBackgroundContexts.popBack(&context);
-
-			if (!context) {
-				CI_LOG_E("Could not create worker thread GL context when loading '" + path + "'");
-				return;
-			}
-
-			context->makeCurrent();
-
-			// create texture and store data on gpu memory
-			const auto texture = gl::Texture::create(surface);
-
-			// wait for upload to complete
-			auto fence = gl::Sync::create();
-			fence->clientWaitSync();
-
-			// recycle context
-			mBackgroundContexts.pushFront(context);
-
-			context = nullptr;
-
-			if (!isLoading(path)) return; // abort if request has been cancelled
-
-			{
-				// store in cache
-				lock_guard<mutex> lock(mTextureMutex);
-				mTextureCache[path] = texture;
-			}
-			
-			// notifify callbacks
-			App::get()->dispatchSync([=] {
-				triggerCallbacks(path, texture);
-			});
-
-			//createSurface(path, data);
-
-			//mMainThreadTasks.add([=]{
-				//if (!isLoading(path)) return; // abort if request has been cancelled
-
-				//createTexture(path);
-				//triggerCallbacks(path);
-			//});
-		});
+		{
+			unique_lock<mutex> lock(mRequestMutex);
+			mRequests.push_back(path);
+			mRequestLock.notify_one();
+		}
 	}
 	
 	void AsyncImageLoader::cancel(const std::string path) {
@@ -212,12 +226,6 @@ namespace utils {
 		}
 	}
 
-	inline gl::ContextRef AsyncImageLoader::getContext() {
-		gl::ContextRef context = nullptr;
-		mBackgroundContexts.popBack(&context);
-		return context;
-	}
-	
 	void AsyncImageLoader::initializeLoader() {
 		lock_guard<mutex> lock(mInitializationMutex);
 
@@ -234,74 +242,6 @@ namespace utils {
 			}
 			sIsInitialized = true;
 		});
-	}
-
-	ci::ImageSourceRef AsyncImageLoader::loadFile(const std::string path) {
-		try {
-			if (ci::fs::exists(path)) {
-				auto data = ci::loadImage(path);
-				return data;
-			} else {
-				CI_LOG_E("Could not find image at " + path);
-				return nullptr;
-			}
-		} catch (Exception e) {
-			CI_LOG_EXCEPTION("Could not load image at " + path, e);
-			return nullptr;
-		}
-	}
-	
-	void AsyncImageLoader::createSurface(const std::string path, const ci::ImageSourceRef source) {
-		lock_guard<mutex> lock(mSurfaceMutex);
-		// create surface and store on cpu memory
-		mSurfaceCache[path] = Surface::create(source);
-	}
-	
-	void AsyncImageLoader::createTexture(const std::string path) {
-		ci::SurfaceRef surface = nullptr;
-		
-		{
-			// try to get the surface
-			lock_guard<mutex> lock(mSurfaceMutex);
-			auto surfIt = mSurfaceCache.find(path);
-			if (surfIt == mSurfaceCache.end()) {
-				return;
-			}
-			
-			// save surface locally so the mutex doesn't get locked for too long
-			surface = surfIt->second;
-			
-			// remove surface from cache when done
-			mSurfaceCache.erase(surfIt);
-		}
-
-		if (!surface) {
-			CI_LOG_E("Could not create texture for '" + path + "' because surface is empty");
-			return;
-		}
-		
-		{
-			ci::ThreadSetup threadSetup;
-			auto context = getContext();
-
-			if (!context) {
-				CI_LOG_E("Could not create worker thread GL context when loading '" + path + "'");
-				return;
-			}
-
-			context->makeCurrent();
-
-			// create texture and store data on gpu memory
-			const auto texture = gl::Texture::create(*surface);
-
-			// wait for upload to complete
-			auto fence = gl::Sync::create();
-			fence->clientWaitSync();
-
-			// store in cache
-			lock_guard<mutex> lock(mTextureMutex);
-			mTextureCache[path] = texture;
-		}
 	}
 	
 }
