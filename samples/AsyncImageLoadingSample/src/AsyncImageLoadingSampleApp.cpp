@@ -107,7 +107,7 @@ void AsyncImageLoadingSampleApp::setup() {
 			});
 		});
 	});
-	mParams->addButton("Cancel All", [=] { AsyncImageLoader::getInstance()->cancelAll(); });
+	mParams->addButton("Cancel All", [=] { AsyncImageLoader::getInstance()->cancelAll(); mTextures.clear(); mNumTexturesLoaded = 0; mNumTexturesToLoad = 0; });
 }
 
 void AsyncImageLoadingSampleApp::draw() {

@@ -56,7 +56,7 @@ namespace utils {
 		// load file and add callback
 		mCallbacks[path].push_back(callback);
 		
-		mWorkerThreadedTasks.addTask([&, path] () {
+		mWorkerThreadedTasks.addTask([=] () {
 			// configure for multithreading
 			ci::ThreadSetup threadSetup;
 
@@ -107,7 +107,7 @@ namespace utils {
 			}
 			
 			// notifify callbacks
-			App::get()->dispatchAsync([=] {
+			App::get()->dispatchSync([=] {
 				triggerCallbacks(path, texture);
 			});
 
