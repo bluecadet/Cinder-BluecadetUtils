@@ -32,63 +32,6 @@ void AsyncImageLoadingSampleApp::setup() {
 	mThreadedQueue.setup(4);
 
 	mParams = params::InterfaceGl::create("Settings", ivec2(250, 150));
-	//mParams->addButton("Load blue image", [=] {
-	//	AsyncImageLoader::getInstance()->load(getAssetPath("bluecadet-blue.png").string(), [=](const string path, gl::TextureRef texture) {
-	//		CI_LOG_D("Loaded " + path);
-	//	});
-	//});
-	//mParams->addButton("Load white image", [=] {
-	//	AsyncImageLoader::getInstance()->load(getAssetPath("bluecadet-white.png").string(), [=](const string path, gl::TextureRef texture) {
-	//		CI_LOG_D("Loaded " + path);
-	//	});
-	//});
-	//mParams->addButton("Load cadet image", [=] {
-	//	AsyncImageLoader::getInstance()->load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
-	//		CI_LOG_D("Loaded " + path);
-	//	});
-	//});
-	//mParams->addButton("Load cadet x 1000", [=] {
-	//	for (int i = 0; i < 1000; ++i) {
-	//		AsyncImageLoader::getInstance()->load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
-	//			if (texture) {
-	//				CI_LOG_D("Loaded cadet " + to_string(i));
-	//			} else {
-	//				CI_LOG_D("Could not load cadet " + to_string(i));
-	//			}
-	//		});
-	//	}
-	//}, "key=l");
-	//mParams->addButton("Cancel & remove cadet", [=] {
-	//	CI_LOG_D("Canceling cadet");
-	//	AsyncImageLoader::getInstance()->cancel(getAssetPath("bluecadet-cadet.png").string());
-	//	AsyncImageLoader::getInstance()->removeTexture(getAssetPath("bluecadet-cadet.png").string());
-	//}, "key=c");
-	//mParams->addButton("Threaded Load & Cancel", [=] {
-	//	for (int i = 0; i < 100; ++i) {
-	//		mThreadedQueue.addTask([=] {
-	//			AsyncImageLoader::getInstance()->load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
-	//				if (texture) {
-	//					CI_LOG_D("Loaded cadet a " + to_string(i));
-	//				} else {
-	//					CI_LOG_D("Could not load cadet a " + to_string(i));
-	//				}
-	//			});
-	//		});
-	//	}
-	//	mThreadedQueue.addTask([=] {
-	//		AsyncImageLoader::getInstance()->cancel(getAssetPath("bluecadet-cadet.png").string());
-	//	});
-	//	for (int i = 0; i < 100; ++i) {
-	//		AsyncImageLoader::getInstance()->load(getAssetPath("bluecadet-cadet.png").string(), [=](const string path, gl::TextureRef texture) {
-	//			if (texture) {
-	//				CI_LOG_D("Loaded cadet b " + to_string(i));
-	//			} else {
-	//				CI_LOG_D("Could not load cadet b " + to_string(i));
-	//			}
-	//		});
-	//	}
-	//	AsyncImageLoader::getInstance()->cancel(getAssetPath("bluecadet-cadet.png").string()); // most 'a' requests should fail, most 'b' requests should succeed
-	//});
 	mParams->addButton("Load All Assets", [=] {
 		mNumTexturesToLoad = 0;
 		mNumTexturesLoaded = 0;
@@ -98,12 +41,12 @@ void AsyncImageLoadingSampleApp::setup() {
 
 			AsyncImageLoader::getInstance()->load(path.string(), [=] (const string path, gl::TextureRef texture) {
 				if (texture) {
-					CI_LOG_D("Loaded image " + path);
+					CI_LOG_I("Loaded image " + path);
 					mNumTexturesLoaded++;
-					//mTextures.push_back(texture);
+					mTextures.push_back(texture);
 
 				} else {
-					CI_LOG_D("Could not load image " + path);
+					CI_LOG_I("Could not load image " + path);
 				}
 			});
 		});
@@ -116,22 +59,11 @@ void AsyncImageLoadingSampleApp::draw() {
 	gl::clear(Color(0, 0, 0));
 	gl::enableAlphaBlending();
 
-	// getTexture will return nullptr if it doesn't exist, so the below would be safe bcause draw() checks for nullptr
-	//gl::draw(AsyncImageLoader::getInstance()->getTexture(getAssetPath("bluecadet-blue.png").string()));
-	//gl::draw(AsyncImageLoader::getInstance()->getTexture(getAssetPath("bluecadet-white.png").string()));
-	//gl::draw(AsyncImageLoader::getInstance()->getTexture(getAssetPath("thf_select\\1968RiversideARRC_087.jpg").string()));
-	//gl::draw(AsyncImageLoader::getInstance()->getTexture(getAssetPath("thf_select\\Indianapolis50005-64_1158.jpg").string()));
-
-	//// you can also check for textures explicitly if you want to be a responsible citizen
-	//if (AsyncImageLoader::getInstance()->hasTexture(getAssetPath("bluecadet-cadet.png").string())) {
-	//	gl::draw(AsyncImageLoader::getInstance()->getTexture(getAssetPath("bluecadet-cadet.png").string()));
-	//}
-
 	const vec2 numCells(ceilf(sqrtf(mNumTexturesToLoad)), ceilf(sqrtf(mNumTexturesToLoad)));
 	vec2 cell = vec2(0, 0);
 	vec2 cellSize = vec2(getWindowSize()) / numCells;
 
-	/*for (auto tex : mTextures) {
+	for (auto tex : mTextures) {
 		vec2 pos = cell * cellSize;
 		Rectf rect(pos, pos + cellSize);
 		gl::draw(tex, rect);
@@ -140,7 +72,7 @@ void AsyncImageLoadingSampleApp::draw() {
 			cell.x = 0;
 			cell.y += 1;
 		}
-	}*/
+	}
 	
 	vec2 size(200);
 	vec2 pos((sinf(getElapsedSeconds()) * 0.5f + 0.5f) * (vec2(getWindowSize()) - size));

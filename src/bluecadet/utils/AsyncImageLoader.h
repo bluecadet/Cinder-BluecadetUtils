@@ -50,15 +50,21 @@ public:
 	bool hasTexture(const std::string path);
 	void removeTexture(const std::string path); // removes texture if it exists and cancels pending requests if it has any
 	const ci::gl::TextureRef getTexture(const std::string path);
+
+	void setNumThreads(const unsigned int value) { mNumThreads = value; setup(); }
+	unsigned int getNumThreads() const { return mNumThreads; }
 	
 protected:
 	void loadImages(ci::gl::ContextRef context); // on worker thread
 	void transferTexturesToMain(); // on main thread
 	void triggerCallbacks(const std::string path, ci::gl::TextureRef texture = nullptr); // on main thread
 
+	void setup();
 	static void initializeLoader(); // makes sure that Cinder's internal static factories are initialized once on the main thread
 	static bool sIsInitialized; // need to initialize Cinder image factory on main thread 
 	static std::mutex mInitializationMutex;
+
+	unsigned int mNumThreads = -1;
 
 	std::map<std::string, std::vector<Callback>> mCallbacks;
 	std::map<std::string, ci::gl::TextureRef> mTextureCache;

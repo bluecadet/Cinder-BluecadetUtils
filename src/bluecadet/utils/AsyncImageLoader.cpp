@@ -19,16 +19,9 @@ namespace utils {
 
 
 	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads) :
-		mTextureBuffer(numThreads * 2)
+		mNumThreads(numThreads),
+		mTextureBuffer(mNumThreads * 2)
 	{
-		for (unsigned int i = 0; i < numThreads; ++i) {
-			auto context = gl::Context::create(gl::context());
-			auto thread = make_shared<std::thread>(bind(&AsyncImageLoader::loadImages, this, context));
-			mThreads.insert(thread);
-			mBackgroundContexts.insert(context);
-		}
-
-		mSignalConnections += App::get()->getSignalUpdate().connect(bind(&AsyncImageLoader::transferTexturesToMain, this));
 	}
 	
 	AsyncImageLoader::~AsyncImageLoader() {
@@ -111,6 +104,7 @@ namespace utils {
 
 	
 	void AsyncImageLoader::load(const std::string path, Callback callback) {
+		setup();
 
 		// check texture cache
 		auto texIt = mTextureCache.find(path);
@@ -224,6 +218,31 @@ namespace utils {
 		for (auto callback : callbacks) {
 			callback(path, texture);
 		}
+	}
+
+	void AsyncImageLoader::setup() {
+		// only set up if # threads has changed
+		if (mNumThreads == mThreads.size()) {
+			return;
+		}
+
+		// reset previous
+		App::get()->dispatchSync([=] {
+			
+			mBackgroundContexts.clear();
+			mThreads.clear();
+			mSignalConnections.clear();
+
+			for (unsigned int i = 0; i < mNumThreads; ++i) {
+				auto context = gl::Context::create(gl::context());
+				auto thread = make_shared<std::thread>(bind(&AsyncImageLoader::loadImages, this, context));
+				mThreads.insert(thread);
+				mBackgroundContexts.insert(context);
+			}
+
+			mSignalConnections += App::get()->getSignalUpdate().connect(bind(&AsyncImageLoader::transferTexturesToMain, this));
+
+		});
 	}
 
 	void AsyncImageLoader::initializeLoader() {
