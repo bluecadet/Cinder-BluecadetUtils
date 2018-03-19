@@ -50,6 +50,9 @@ public:
 	bool hasTexture(const std::string path);
 	void removeTexture(const std::string path); // removes texture if it exists and cancels pending requests if it has any
 	const ci::gl::TextureRef getTexture(const std::string path);
+
+	static const ci::gl::Texture::Format & getDefaultFormat();
+	static void setDefaultFormat(ci::gl::Texture::Format value);
 	
 protected:
 	void loadImages(ci::gl::ContextRef context); // on worker thread
@@ -76,6 +79,8 @@ protected:
 	std::atomic<bool> mWasCanceled = false;
 	ci::signals::ConnectionList mSignalConnections;
 	
+	static ci::gl::Texture2d::Format sDefaultFormat;
+	static bool sDefaultFormatInitialized;
 };
 
 }
