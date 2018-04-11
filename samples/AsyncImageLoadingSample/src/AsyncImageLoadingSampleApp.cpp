@@ -19,7 +19,6 @@ public:
 	void draw() override;
 
 	AsyncImageLoader mLoader;
-	ThreadedTaskQueue mThreadedQueue;
 	params::InterfaceGlRef mParams;
 
 	int mNumTexturesToLoad = 0;
@@ -29,9 +28,8 @@ public:
 
 void AsyncImageLoadingSampleApp::setup() {
 	setFpsSampleInterval(0.1);
-	mThreadedQueue.setup(4);
 
-	mParams = params::InterfaceGl::create("Settings", ivec2(250, 150));
+	mParams = params::InterfaceGl::create("Settings", toPixels(ivec2(250, 150)));
 	mParams->addButton("Load All Assets", [=] {
 		mNumTexturesToLoad = 0;
 		mNumTexturesLoaded = 0;
@@ -41,7 +39,7 @@ void AsyncImageLoadingSampleApp::setup() {
 
 			AsyncImageLoader::getInstance()->load(path.string(), [=] (const string path, gl::TextureRef texture) {
 				if (texture) {
-					CI_LOG_I("Loaded image " + path);
+					//CI_LOG_I("Loaded image " + path);
 					mNumTexturesLoaded++;
 					mTextures.push_back(texture);
 
@@ -51,6 +49,7 @@ void AsyncImageLoadingSampleApp::setup() {
 			});
 		});
 	}, "key=l");
+	mParams->addParam<int>("Num Threads", [=](int v) { AsyncImageLoader::getInstance()->setNumThreads(v); }, [=] { return AsyncImageLoader::getInstance()->getNumThreads(); });
 	mParams->addButton("Cancel All", [=] { AsyncImageLoader::getInstance()->cancelAll(); mTextures.clear(); mNumTexturesLoaded = 0; mNumTexturesToLoad = 0; }, "key=c");
 }
 
@@ -87,6 +86,7 @@ void AsyncImageLoadingSampleApp::draw() {
 }
 
 CINDER_APP(AsyncImageLoadingSampleApp, RendererGl, [=](ci::app::App::Settings * settings) {
+	settings->setHighDensityDisplayEnabled(true);
 	settings->setWindowSize(ivec2(1280, 720));
 	settings->disableFrameRate();
 })

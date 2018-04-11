@@ -27,12 +27,12 @@ namespace utils {
 	}
 	
 	AsyncImageLoader::~AsyncImageLoader() {
-		mWasCanceled = true;
+		mTextureBuffer.cancel();
+		mThreadsAreAlive = false;
 		mRequestLock.notify_all();
 		for (auto thread : mThreads) {
 			thread->join();
 		}
-		mTextureBuffer.cancel();
 	}
 
 	void AsyncImageLoader::loadImages(ci::gl::ContextRef context) {
@@ -41,17 +41,17 @@ namespace utils {
 		context->makeCurrent();
 		initializeLoader();
 
-		while (!mWasCanceled) {
+		while (mThreadsAreAlive) {
 			std::string path;
 
 			{
 				// wait for new requests
 				unique_lock<mutex> lock(mRequestMutex);
-				while (!mWasCanceled && mRequests.empty()) {
+				while (mThreadsAreAlive && mRequests.empty()) {
 					mRequestLock.wait(lock);
 				}
 
-				if (mWasCanceled) return;
+				if (!mThreadsAreAlive) return;
 
 				path = mRequests.front();
 				mRequests.pop_front();
@@ -69,7 +69,7 @@ namespace utils {
 					}
 
 					if (!isLoading(path)) continue; // abort if request has been cancelled
-					if (mWasCanceled) return;
+					if (!mThreadsAreAlive) return;
 
 					// create cpu mem surface
 					ci::Surface surface(data);
@@ -84,7 +84,7 @@ namespace utils {
 					fence->clientWaitSync();
 
 					if (!isLoading(path)) continue; // abort if request has been cancelled
-					if (mWasCanceled) return;
+					if (!mThreadsAreAlive) return;
 
 					Request request(path, texture);
 					mTextureBuffer.pushFront(request);
@@ -228,22 +228,40 @@ namespace utils {
 			return;
 		}
 
-		// reset previous
+		// initialize from primary thread
 		App::get()->dispatchSync([=] {
 			
-			mBackgroundContexts.clear();
-			mThreads.clear();
-			mSignalConnections.clear();
+			// Save current VAO to prevent crashes from calling setup multiple times from params
+			gl::Context::getCurrent()->pushVao();
 
-			for (unsigned int i = 0; i < mNumThreads; ++i) {
-				auto context = gl::Context::create(gl::context());
-				auto thread = make_shared<std::thread>(bind(&AsyncImageLoader::loadImages, this, context));
-				mThreads.insert(thread);
-				mBackgroundContexts.insert(context);
+			try {
+				mSignalConnections.clear();
+
+				mThreadsAreAlive = false;
+				mRequestLock.notify_all();
+				for (auto thread : mThreads) {
+					thread->join();
+				}
+				mThreads.clear();
+				mBackgroundContexts.clear();
+				mThreadsAreAlive = true;
+
+				for (unsigned int i = 0; i < mNumThreads; ++i) {
+					auto context = gl::Context::create(gl::Context::getCurrent());
+					mBackgroundContexts.insert(context);
+
+					auto thread = make_shared<std::thread>(bind(&AsyncImageLoader::loadImages, this, context));
+					mThreads.insert(thread);
+				}
+
+				mSignalConnections += App::get()->getSignalUpdate().connect(bind(&AsyncImageLoader::transferTexturesToMain, this));
+
+			} catch (std::exception & e) {
+				CI_LOG_EXCEPTION("Error in setup", e);
 			}
 
-			mSignalConnections += App::get()->getSignalUpdate().connect(bind(&AsyncImageLoader::transferTexturesToMain, this));
-
+			// Restore previous VAO to prevent crashes from calling setup multiple times from params
+			gl::Context::getCurrent()->popVao();
 		});
 	}
 

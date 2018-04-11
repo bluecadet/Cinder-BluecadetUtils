@@ -28,28 +28,28 @@ public:
 	};
 
 	struct Request {
-		ci::fs::path path;
+		std::string path;
 		ci::gl::TextureRef texture = nullptr;
 
-		Request(const ci::fs::path & path, const ci::gl::TextureRef texture) : path(path), texture(texture) {}
+		Request(const std::string path, const ci::gl::TextureRef texture) : path(path), texture(texture) {}
 	};
 	
 	// Callback type for load requests. Resulting texture will be nullptr if request failed or canceled
 	typedef std::function<void(const std::string path, ci::gl::TextureRef textureOrNull)> Callback;
 	
 	//! numThreads: Threads used for loading + decoding images
-	AsyncImageLoader(const unsigned int numThreads = 4);
+	AsyncImageLoader(const unsigned int numThreads = 1);
 	virtual ~AsyncImageLoader();
 	
-	void load(const ci::fs::path & path, Callback callback);
-	void cancel(const ci::fs::path & path);
-	bool isLoading(const ci::fs::path & path);
+	void load(const std::string path, Callback callback);
+	void cancel(const std::string path);
+	bool isLoading(const std::string path);
 	
 	void cancelAll(const bool removeData = true); // cancels any pending loads and removes existing surfaces and textures
 
-	bool hasTexture(const ci::fs::path & path);
-	void removeTexture(const ci::fs::path & path); // removes texture if it exists and cancels pending requests if it has any
-	const ci::gl::TextureRef getTexture(const ci::fs::path & path);
+	bool hasTexture(const std::string path);
+	void removeTexture(const std::string path); // removes texture if it exists and cancels pending requests if it has any
+	const ci::gl::TextureRef getTexture(const std::string path);
 
 	void setNumThreads(const unsigned int value) { mNumThreads = value; setup(); }
 	unsigned int getNumThreads() const { return mNumThreads; }
@@ -69,8 +69,8 @@ protected:
 
 	unsigned int mNumThreads = -1;
 
-	std::map<ci::fs::path &, std::vector<Callback>> mCallbacks;
-	std::map<ci::fs::path &, ci::gl::TextureRef> mTextureCache;
+	std::map<std::string, std::vector<Callback>> mCallbacks;
+	std::map<std::string, ci::gl::TextureRef> mTextureCache;
 	std::set<ci::gl::ContextRef> mBackgroundContexts;
 	ci::ConcurrentCircularBuffer<Request> mTextureBuffer;
 
@@ -82,7 +82,7 @@ protected:
 	std::deque<std::string> mRequests;
 
 	std::set<std::shared_ptr<std::thread>> mThreads;
-	std::atomic<bool> mWasCanceled = false;
+	std::atomic<bool> mThreadsAreAlive = true;
 	ci::signals::ConnectionList mSignalConnections;
 	
 	static ci::gl::Texture2d::Format sDefaultFormat;

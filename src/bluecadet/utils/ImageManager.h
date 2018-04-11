@@ -27,6 +27,7 @@ public:
 		return instance;
 	}
 
+	ImageManager();
 	virtual ~ImageManager();
 
 	/// <summary>
@@ -56,9 +57,6 @@ public:
 	static void setDefaultFormat(ci::gl::Texture::Format value);
 
 private:
-
-	ImageManager();
-
 	// All preloaded textures
 	std::map<std::string, ci::gl::Texture2dRef>	mTexturesMap;
 
