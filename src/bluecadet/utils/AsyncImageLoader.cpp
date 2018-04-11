@@ -5,7 +5,6 @@
 #include "cinder/Filesystem.h"
 #include "cinder/imageIo.h"
 
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -16,6 +15,9 @@ namespace utils {
 	// Static properties
 	bool AsyncImageLoader::sIsInitialized = false;
 	std::mutex AsyncImageLoader::mInitializationMutex;
+
+	ci::gl::Texture::Format AsyncImageLoader::sDefaultFormat;
+	bool AsyncImageLoader::sDefaultFormatInitialized = false;
 
 
 	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads) :
@@ -73,7 +75,7 @@ namespace utils {
 					ci::Surface surface(data);
 
 					// create texture and store data on gpu memory
-					const auto texture = gl::Texture::create(surface);
+					const auto texture = gl::Texture::create(surface, getDefaultFormat());
 
 					// create fence after all gpu commands
 					auto fence = gl::Sync::create();
@@ -261,6 +263,25 @@ namespace utils {
 			}
 			sIsInitialized = true;
 		});
+	}
+
+	const ci::gl::Texture::Format & AsyncImageLoader::getDefaultFormat() {
+		if (!sDefaultFormatInitialized) {
+			sDefaultFormatInitialized = true;
+
+			sDefaultFormat = gl::Texture::Format();
+			sDefaultFormat.setMaxAnisotropy(gl::Texture2d::getMaxAnisotropyMax());
+			sDefaultFormat.enableMipmapping(true);
+			sDefaultFormat.setMaxMipmapLevel(2);
+			sDefaultFormat.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+			sDefaultFormat.setMagFilter(GL_LINEAR);
+		}
+		return sDefaultFormat;
+	}
+
+	void AsyncImageLoader::setDefaultFormat(ci::gl::Texture::Format format) {
+		sDefaultFormat = format;
+		sDefaultFormatInitialized = true;
 	}
 	
 }
