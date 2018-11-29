@@ -16,19 +16,97 @@ namespace utils {
 	bool AsyncImageLoader::sIsInitialized = false;
 	std::mutex AsyncImageLoader::mInitializationMutex;
 
+	ci::gl::Texture::Format AsyncImageLoader::sDefaultFormat;
+	bool AsyncImageLoader::sDefaultFormatInitialized = false;
 
-	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads, const double maxMainThreadBlockDuration) :
-		mMainThreadTasks(true, maxMainThreadBlockDuration)
+
+	AsyncImageLoader::AsyncImageLoader(const unsigned int numThreads) :
+		mNumThreads(numThreads),
+		mTextureBuffer(mNumThreads * 2)
 	{
-		mWorkerThreadedTasks.setup(numThreads);
 	}
 	
 	AsyncImageLoader::~AsyncImageLoader() {
-		
+		mTextureBuffer.cancel();
+		mThreadsAreAlive = false;
+		mRequestLock.notify_all();
+		for (auto thread : mThreads) {
+			thread->join();
+		}
+	}
+
+	void AsyncImageLoader::loadImages(ci::gl::ContextRef context) {
+		ci::ThreadSetup threadSetup;
+
+		context->makeCurrent();
+		initializeLoader();
+
+		while (mThreadsAreAlive) {
+			std::string path;
+
+			{
+				// wait for new requests
+				unique_lock<mutex> lock(mRequestMutex);
+				while (mThreadsAreAlive && mRequests.empty()) {
+					mRequestLock.wait(lock);
+				}
+
+				if (!mThreadsAreAlive) return;
+
+				path = mRequests.front();
+				mRequests.pop_front();
+			}
+
+			if (!path.empty()) {
+				try {
+
+					auto data = loadImage(path);
+
+					if (!data) {
+						// Can't load image
+						cancel(path);
+						continue;
+					}
+
+					if (!isLoading(path)) continue; // abort if request has been cancelled
+					if (!mThreadsAreAlive) return;
+
+					// create cpu mem surface
+					ci::Surface surface(data);
+
+					// create texture and store data on gpu memory
+					const auto texture = gl::Texture::create(surface, getDefaultFormat());
+
+					// create fence after all gpu commands
+					auto fence = gl::Sync::create();
+
+					// waits until fence has been executed
+					fence->clientWaitSync();
+
+					if (!isLoading(path)) continue; // abort if request has been cancelled
+					if (!mThreadsAreAlive) return;
+
+					Request request(path, texture);
+					mTextureBuffer.pushFront(request);
+
+				} catch (ci::Exception e) {
+					CI_LOG_EXCEPTION("Could not load image at '" + path + "'.", e);
+				}
+			}
+		}
+	}
+
+	void AsyncImageLoader::transferTexturesToMain() {
+		Request request("", nullptr);
+		while (mTextureBuffer.tryPopBack(&request)) {
+			mTextureCache[request.path] = request.texture;
+			triggerCallbacks(request.path, request.texture);
+		}
 	}
 
 	
 	void AsyncImageLoader::load(const std::string path, Callback callback) {
+		setup();
 
 		// check texture cache
 		auto texIt = mTextureCache.find(path);
@@ -47,31 +125,11 @@ namespace utils {
 		
 		// load file and add callback
 		mCallbacks[path].push_back(callback);
-		
-		mWorkerThreadedTasks.addTask([=] () {
-			initializeLoader();
-
-			if (!isLoading(path)) return; // abort if request has been cancelled
-			
-			auto data = loadFile(path);
-
-			if (!data) {
-				// Can't load image
-				cancel(path);
-				return;
-			}
-
-			if (!isLoading(path)) return; // abort if request has been cancelled
-
-			createSurface(path, data);
-			
-			mMainThreadTasks.add([=]{
-				if (!isLoading(path)) return; // abort if request has been cancelled
-
-				createTexture(path);
-				triggerCallbacks(path);
-			});
-		});
+		{
+			unique_lock<mutex> lock(mRequestMutex);
+			mRequests.push_back(path);
+			mRequestLock.notify_one();
+		}
 	}
 	
 	void AsyncImageLoader::cancel(const std::string path) {
@@ -84,6 +142,23 @@ namespace utils {
 		lock_guard<mutex> lock(mCallbackMutex);
 		auto cbIt = mCallbacks.find(path);
 		return cbIt != mCallbacks.end();
+	}
+
+	void AsyncImageLoader::cancelAll(const bool removeData) {
+		lock_guard<mutex> lock(mCallbackMutex);
+		for (auto it = mCallbacks.begin(); it != mCallbacks.end(); ) {
+			const auto & path = it->first;
+			const auto & callbacks = it->second;
+			for (auto callback : callbacks) {
+				callback(it->first, nullptr);
+			}
+			it = mCallbacks.erase(it);
+		}
+
+		if (removeData) {
+			lock_guard<mutex> lock(mTextureMutex);
+			mTextureCache.clear();
+		}
 	}
 	
 	bool AsyncImageLoader::hasTexture(const std::string path) {
@@ -114,7 +189,7 @@ namespace utils {
 		return it->second;
 	}
 	
-	void AsyncImageLoader::triggerCallbacks(const std::string path) {
+	void AsyncImageLoader::triggerCallbacks(const std::string path, ci::gl::TextureRef texture) {
 		std::vector<Callback> callbacks;
 		
 		{
@@ -131,24 +206,65 @@ namespace utils {
 				mCallbacks.erase(cbIt);
 			}
 		}
-		
-		gl::TextureRef tex = nullptr;
 
-		{
+		if (!texture) {
 			// try to get texture
 			lock_guard<mutex> lock(mTextureMutex);
 			auto texIt = mTextureCache.find(path);
 			if (texIt != mTextureCache.end()) {
-				tex = texIt->second;
+				texture = texIt->second;
 			}
 		}
 		
 		// trigger callbacks w texture or nullptr
 		for (auto callback : callbacks) {
-			callback(path, tex);
+			callback(path, texture);
 		}
 	}
-	
+
+	void AsyncImageLoader::setup() {
+		// only set up if # threads has changed
+		if (mNumThreads == mThreads.size()) {
+			return;
+		}
+
+		// initialize from primary thread
+		App::get()->dispatchSync([=] {
+			
+			// Save current VAO to prevent crashes from calling setup multiple times from params
+			gl::Context::getCurrent()->pushVao();
+
+			try {
+				mSignalConnections.clear();
+
+				mThreadsAreAlive = false;
+				mRequestLock.notify_all();
+				for (auto thread : mThreads) {
+					thread->join();
+				}
+				mThreads.clear();
+				mBackgroundContexts.clear();
+				mThreadsAreAlive = true;
+
+				for (unsigned int i = 0; i < mNumThreads; ++i) {
+					auto context = gl::Context::create(gl::Context::getCurrent());
+					mBackgroundContexts.insert(context);
+
+					auto thread = make_shared<std::thread>(bind(&AsyncImageLoader::loadImages, this, context));
+					mThreads.insert(thread);
+				}
+
+				mSignalConnections += App::get()->getSignalUpdate().connect(bind(&AsyncImageLoader::transferTexturesToMain, this));
+
+			} catch (std::exception & e) {
+				CI_LOG_EXCEPTION("Error in setup", e);
+			}
+
+			// Restore previous VAO to prevent crashes from calling setup multiple times from params
+			gl::Context::getCurrent()->popVao();
+		});
+	}
+
 	void AsyncImageLoader::initializeLoader() {
 		lock_guard<mutex> lock(mInitializationMutex);
 
@@ -167,55 +283,23 @@ namespace utils {
 		});
 	}
 
-	ci::ImageSourceRef AsyncImageLoader::loadFile(const std::string path) {
-		try {
-			if (ci::fs::exists(path)) {
-				auto data = ci::loadImage(path);
-				return data;
-			} else {
-				CI_LOG_E("Could not find image at " + path);
-				return nullptr;
-			}
-		} catch (Exception e) {
-			CI_LOG_EXCEPTION("Could not load image at " + path, e);
-			return nullptr;
-		}
-	}
-	
-	void AsyncImageLoader::createSurface(const std::string path, const ci::ImageSourceRef source) {
-		lock_guard<mutex> lock(mSurfaceMutex);
-		// create surface and store on cpu memory
-		mSurfaceCache[path] = Surface::create(source);
-	}
-	
-	void AsyncImageLoader::createTexture(const std::string path) {
-		ci::SurfaceRef surface = nullptr;
-		
-		{
-			// try to get the surface
-			lock_guard<mutex> lock(mSurfaceMutex);
-			auto surfIt = mSurfaceCache.find(path);
-			if (surfIt == mSurfaceCache.end()) {
-				return;
-			}
-			
-			// save surface locally so the mutex doesn't get locked for too long
-			surface = surfIt->second;
-			
-			// remove surface from cache when done
-			mSurfaceCache.erase(surfIt);
-		}
+	const ci::gl::Texture::Format & AsyncImageLoader::getDefaultFormat() {
+		if (!sDefaultFormatInitialized) {
+			sDefaultFormatInitialized = true;
 
-		if (!surface) {
-			CI_LOG_E("Could not create texture for '" + path + "' because surface is empty");
-			return;
+			sDefaultFormat = gl::Texture::Format();
+			sDefaultFormat.setMaxAnisotropy(gl::Texture2d::getMaxAnisotropyMax());
+			sDefaultFormat.enableMipmapping(true);
+			sDefaultFormat.setMaxMipmapLevel(2);
+			sDefaultFormat.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+			sDefaultFormat.setMagFilter(GL_LINEAR);
 		}
-		
-		{
-			// create texture and store data on gpu memory
-			lock_guard<mutex> lock(mTextureMutex);
-			mTextureCache[path] = gl::Texture::create(*surface);
-		}
+		return sDefaultFormat;
+	}
+
+	void AsyncImageLoader::setDefaultFormat(ci::gl::Texture::Format format) {
+		sDefaultFormat = format;
+		sDefaultFormatInitialized = true;
 	}
 	
 }

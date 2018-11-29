@@ -22,22 +22,23 @@ public:
 	static ImageManagerRef getInstance() {
 		static ImageManagerRef instance = nullptr;
 		if (instance == nullptr) {
-			instance = ImageManagerRef(new ImageManager());
+			instance = std::make_shared<ImageManager>();
 		}
 		return instance;
 	}
 
-	~ImageManager();
+	ImageManager();
+	virtual ~ImageManager();
 
 	/// <summary>
-	/// Loads a single image at absFilePath and uses its filename as key.
+	/// Loads a single image at absFilePath and uses its filename as key. Does not check if the image already exists (call hasTexture() explicitly for this).
 	/// </summary>
 	void load(const ci::fs::path & absFilePath, const ci::gl::Texture::Format & format = getDefaultFormat());
 
 	/// <summary>
-	/// Loads a single image at absFilePath and stores it under key.
+	/// Loads a single image at absFilePath and stores it under key. Does not check if the image already exists (call hasTexture() explicitly for this).
 	/// </summary>
-	void load(const ci::fs::path & absFilePath, const std::string & key, const ci::gl::Texture::Format & format = getDefaultFormat());
+	virtual void load(const ci::fs::path & absFilePath, const std::string & key, const ci::gl::Texture::Format & format = getDefaultFormat());
 
 	/// <summary>
 	/// Loads all from dir.
@@ -56,9 +57,6 @@ public:
 	static void setDefaultFormat(ci::gl::Texture::Format value);
 
 private:
-
-	ImageManager();
-
 	// All preloaded textures
 	std::map<std::string, ci::gl::Texture2dRef>	mTexturesMap;
 
