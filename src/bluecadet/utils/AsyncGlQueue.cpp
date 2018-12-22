@@ -26,7 +26,6 @@ namespace utils {
 	AsyncGlQueue::~AsyncGlQueue() {
 		mProcessing.cancel();
 		mCompleted.cancel();
-		//mTodoLock.notify_all();
 		mThreadsAreAlive = false;
 		for (auto thread : mThreads) {
 			thread->join();
@@ -35,12 +34,6 @@ namespace utils {
 
 	void AsyncGlQueue::run(Task task, Callback optCallback) {
 		setup();
-		/*{
-			unique_lock<mutex> lock(mTodoMutex);
-			mTodos.push_back(TaskInfo(task, optCallback));
-			mTodoLock.notify_one();
-		}*/
-		/*mProcessing.pushFront(TaskInfo(task, optCallback));*/
 		mTodos.push_back(TaskInfo(task, optCallback));
 	}
 
@@ -59,19 +52,6 @@ namespace utils {
 			try {
 
 				TaskInfo info;
-
-				{
-					// wait for new tasks
-					/*unique_lock<mutex> lock(mTodoMutex);
-					while (mThreadsAreAlive && mTodos.empty()) {
-						mTodoLock.wait(lock);
-					}
-
-					if (!mThreadsAreAlive) return;
-
-					info = mTodos.front();
-					mTodos.pop_front();*/
-				}
 
 				mProcessing.popBack(&info);
 

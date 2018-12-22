@@ -63,10 +63,6 @@ protected:
 
 	std::set<ci::gl::ContextRef> mBackgroundContexts;
 
-	//std::mutex mTodoMutex;
-	//std::condition_variable mTodoLock;
-	//std::deque<TaskInfo> mTodos;
-
 	std::deque<TaskInfo> mTodos;
 	ci::ConcurrentCircularBuffer<TaskInfo> mProcessing;
 	ci::ConcurrentCircularBuffer<TaskInfo> mCompleted;
