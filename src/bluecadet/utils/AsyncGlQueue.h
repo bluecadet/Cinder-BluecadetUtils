@@ -47,7 +47,7 @@ public:
 	void run(Task task, Callback optCallback = nullptr);
 	void cancelAll(); // cancels any pending tasks
 
-	void setNumThreads(const unsigned int value) { mNumThreads = value; setup(); }
+	void setNumThreads(const unsigned int value) { if (mNumThreads != value) { mNumThreads = value; setup(); } }
 	unsigned int getNumThreads() const { return mNumThreads; }
 
 protected:
