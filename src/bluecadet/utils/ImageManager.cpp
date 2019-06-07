@@ -40,14 +40,31 @@ void ImageManager::load(const ci::fs::path & absFilePath, const std::string & ke
 	}
 }
 
-void ImageManager::loadAllFromDir(const ci::fs::path absDirPath, const std::set<std::string> extensions, const bool recursive, const bool fileNameAsKey, const ci::gl::Texture::Format & format) {
+void ImageManager::loadAllFromDir(const ci::fs::path absDirPath, const LoadOptions options, const ci::gl::Texture::Format & format) {
 	int numImagesLoaded = 0;
+	string absDirStr = absDirPath.string();
+
+	if (!absDirStr.empty() && absDirStr.back() != ci::fs::path::preferred_separator) {
+		// add trailing separator to directory path (makes relative path keys more legible)
+		absDirStr += ci::fs::path::preferred_separator;
+	}
 
 	FileUtils::find(absDirPath, [&](const ci::fs::path & path) {
-		string key = fileNameAsKey ? FileUtils::getFilename(path) : path.string();
+
+		string key = options.getKeyMapping() == KeyMapping::Filename ? FileUtils::getFilename(path) : path.string();
+
+		if (options.getKeyMapping() == KeyMapping::RelativePath) {
+			const size_t absDirLength = absDirStr.size();
+			key = key.substr(absDirLength, key.size() - absDirLength);
+		}
+
+		if (options.getForceForwardSlashes()) {
+			std::replace(key.begin(), key.end(), '\\', '/');
+		}
+
 		load(path, key, format);
 		numImagesLoaded++;
-	}, extensions, recursive);
+	}, options.getExtensions(), options.getRecursive(), options.getForceLowercaseExtensions());
 
 	CI_LOG_I("Loaded " + to_string(numImagesLoaded) + " images from " + absDirPath.string());
 }
@@ -63,6 +80,14 @@ ci::gl::Texture2dRef ImageManager::getTexture(const std::string & key) const {
 		return nullptr;
 	}
 	return it->second;
+}
+
+void ImageManager::add(const std::string& key, ci::gl::TextureRef texture) {
+	mTexturesMap[key] = texture;
+}
+
+void ImageManager::removeAll() {
+	mTexturesMap.clear();
 }
 
 const ci::gl::Texture::Format & ImageManager::getDefaultFormat() {
