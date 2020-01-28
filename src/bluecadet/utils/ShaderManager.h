@@ -17,6 +17,7 @@ public:
 		std::string fragPath = "";
 		std::string geomPath = "";
 		FormatCallback formatCallback = nullptr;
+		std::map<ci::geom::Attrib, std::string> attributeSemanticMap;
 
 		ShaderInfo(
 			const std::string vertPath = "",
@@ -44,13 +45,14 @@ public:
 			const FormatCallback formatCallback = nullptr
 		) : ShaderInfo(vertPath, "", fragPath, loadFromAssetsFolder, formatCallback) {
 		};
+
+		void attrib(ci::geom::Attrib semantic, const std::string &attribName) {
+			attributeSemanticMap.insert(make_pair(semantic,attribName));
+		}
 	};
 
-	static ShaderManagerRef getInstance(){
-		static ShaderManagerRef instance = nullptr;
-		if (instance == nullptr) {
-			instance = ShaderManagerRef(new ShaderManager());
-		}
+	static ShaderManagerRef get(){
+		static auto instance = std::make_shared<ShaderManager>();
 		return instance;
 	}
 

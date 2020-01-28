@@ -78,14 +78,20 @@ ci::gl::GlslProgRef ShaderManager::loadShader(const ShaderInfo info) {
 		if (info.formatCallback) {
 			info.formatCallback(format);
 		}
+		if (info.attributeSemanticMap.size()) {
+			for (auto attr : info.attributeSemanticMap) {
+				format.attrib(attr.first, attr.second);
+				CI_LOG_I("Adding semantic binding to shader attribute: " << attr.second);
+			}
+		}
 	} catch (Exception e) {
 		CI_LOG_EXCEPTION("Could not load shader", e);
 		return nullptr;
 	}
 
+
 	try {
 		return ci::gl::GlslProg::create(format);
-
 	} catch (Exception e) {
 		CI_LOG_EXCEPTION("Could not create shader", e);
 		return nullptr;
