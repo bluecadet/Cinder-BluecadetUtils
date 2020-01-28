@@ -37,7 +37,7 @@ void AsyncImageLoadingSampleApp::setup() {
 		FileUtils::find(getAssetPath("thf_large"), [=] (const ci::fs::path & path) {
 			mNumTexturesToLoad++;
 
-			AsyncImageLoader::getInstance()->load(path.string(), [=] (const string path, gl::TextureRef texture) {
+			AsyncImageLoader::get()->load(path.string(), [=] (const string path, gl::TextureRef texture) {
 				if (texture) {
 					//CI_LOG_I("Loaded image " + path);
 					mNumTexturesLoaded++;
@@ -49,8 +49,8 @@ void AsyncImageLoadingSampleApp::setup() {
 			});
 		});
 	}, "key=l");
-	mParams->addParam<int>("Num Threads", [=](int v) { AsyncImageLoader::getInstance()->setNumThreads(v); }, [=] { return AsyncImageLoader::getInstance()->getNumThreads(); });
-	mParams->addButton("Cancel All", [=] { AsyncImageLoader::getInstance()->cancelAll(); mTextures.clear(); mNumTexturesLoaded = 0; mNumTexturesToLoad = 0; }, "key=c");
+	mParams->addParam<int>("Num Threads", [=](int v) { AsyncImageLoader::get()->setNumThreads(v); }, [=] { return AsyncImageLoader::get()->getNumThreads(); });
+	mParams->addButton("Cancel All", [=] { AsyncImageLoader::get()->cancelAll(); mTextures.clear(); mNumTexturesLoaded = 0; mNumTexturesToLoad = 0; }, "key=c");
 }
 
 void AsyncImageLoadingSampleApp::draw() {

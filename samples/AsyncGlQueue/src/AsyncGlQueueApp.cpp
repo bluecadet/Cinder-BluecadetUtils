@@ -28,7 +28,7 @@ void AsyncGlQueueApp::setup()
 void AsyncGlQueueApp::mouseDown( MouseEvent event )
 {
 	for (int i = 0; i < 2560; i++) {
-		AsyncGlQueue::getInstance()->run([] {
+		AsyncGlQueue::get()->run([] {
 			CI_LOG_I("running");
 		}, [](bool completed, bool canceled) {
 			CI_LOG_I("done");
