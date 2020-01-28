@@ -19,11 +19,8 @@ class AsyncImageLoader {
 public:
 
 	//! Optional shared instance. This class can still be independently instantiated.
-	static AsyncImageLoaderRef getInstance() {
-		static AsyncImageLoaderRef instance = nullptr;
-		if (!instance) {
-			instance = std::make_shared<AsyncImageLoader>();
-		}
+	static AsyncImageLoaderRef get() {
+		static auto instance = std::make_shared<AsyncImageLoader>();
 		return instance;
 	};
 

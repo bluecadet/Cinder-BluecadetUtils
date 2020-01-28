@@ -19,11 +19,8 @@ class AsyncGlQueue {
 public:
 
 	//! Optional shared instance. This class can still be independently instantiated.
-	static AsyncGlQueueRef getInstance() {
-		static AsyncGlQueueRef instance = nullptr;
-		if (!instance) {
-			instance = std::make_shared<AsyncGlQueue>();
-		}
+	static AsyncGlQueueRef get() {
+		static auto instance = std::make_shared<AsyncGlQueue>();
 		return instance;
 	};
 

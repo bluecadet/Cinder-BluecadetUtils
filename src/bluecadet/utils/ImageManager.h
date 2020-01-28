@@ -46,14 +46,12 @@ public:
 		bool					mForceForwardSlashes = true;
 	};
 
-	static ImageManagerRef getInstance() {
-		static ImageManagerRef instance = nullptr;
-		if (instance == nullptr) {
-			instance = ImageManagerRef(new ImageManager());
-		}
+	static ImageManagerRef get() {
+		static auto instance = std::make_shared<ImageManager>();
 		return instance;
 	}
 
+	ImageManager();
 	~ImageManager();
 
 	/// <summary>
@@ -94,8 +92,6 @@ public:
 	static void setDefaultFormat(ci::gl::Texture::Format value);
 
 private:
-
-	ImageManager();
 
 	// All preloaded textures
 	std::map<std::string, ci::gl::Texture2dRef>	mTexturesMap;
