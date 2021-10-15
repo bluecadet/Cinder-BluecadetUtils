@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 namespace bluecadet {
 namespace utils {

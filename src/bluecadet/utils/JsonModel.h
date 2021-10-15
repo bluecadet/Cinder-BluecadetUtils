@@ -6,6 +6,10 @@
 
 #include <set>
 #include <vector>
+#include <string>
+#include <stdexcept>
+#include <Windows.h>
+
 
 namespace bluecadet {
 namespace utils {
@@ -118,18 +122,35 @@ protected:
 	friend std::ostream & operator<<(std::ostream & os, JsonModel * model);
 };
 
-template <typename T> inline T JsonModel::defaultValueFactory(const ci::JsonTree & json) { return json.getValue<T>(); }
+// String to wide string utlity function to support default factory function conversion to wide string
+std::wstring string_to_wide_string(const std::string& string)
+{
+	if (string.empty()) { return L""; }
 
+	const auto size_needed = MultiByteToWideChar(CP_UTF8, 0, &string.at(0), (int)string.size(), nullptr, 0);
+	if (size_needed <= 0)
+	{
+		throw std::runtime_error("MultiByteToWideChar() failed: " + std::to_string(size_needed));
+	}
+
+	std::wstring result(size_needed, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &string.at(0), (int)string.size(), &result.at(0), size_needed);
+	return result;
+}
+
+
+
+template <typename T> inline T JsonModel::defaultValueFactory(const ci::JsonTree & json) { return json.getValue<T>(); }
 
 // Specialization that's required to allow for wide string support
 template <> inline std::wstring JsonModel::defaultValueFactory(const ci::JsonTree & json) {
-	static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> wStringConverter;
 	const std::string narrowStr =  json.getValue<std::string>();
 	if (!narrowStr.empty()) {
-		return wStringConverter.from_bytes(narrowStr);
+		return string_to_wide_string(narrowStr);
 	}
 	return std::wstring();
 }
+
 
 template <typename T> inline std::shared_ptr<T> JsonModel::defaultSharedPtrFactory(const ci::JsonTree & json) {
 	return std::make_shared<T>(json);
